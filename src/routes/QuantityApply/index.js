@@ -6,34 +6,46 @@ const Search = Input.Search;
 const QuantityApply = () => {
   const columns=[
     {
-      title:'编号',
+      title:<div style={{textAlign:"center"}}>编号</div>,
       dataIndex:'quantityApplyId',
-      key:'quantityApplyId'
+      key:'quantityApplyId',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'单位名称',
+      title:<div style={{textAlign:"center"}}>单位名称</div>,
       dataIndex:'company',
-      key:'company'
+      key:'company',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'编制类型',
+      title:<div style={{textAlign:"center"}}>编制类型</div>,
       dataIndex:'quantityType',
-      key:'quantityType'
+      key:'quantityType',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'拟用编制数',
+      title:<div style={{textAlign:"center"}}>拟用编制数</div>,
       dataIndex:'number',
-      key:'number'
+      key:'number',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'操作',
+      title:<div style={{textAlign:"center"}}>操作</div>,
       key:'option',
       render:()=>(
-        <span>
+        <div style={{textAlign:"center"}}>
           <a>编辑</a>
           <Divider type="vertical" />
           <a>删除</a>
-        </span>
+        </div>
       )
     }
   ];
@@ -54,7 +66,7 @@ const QuantityApply = () => {
           <Button type="primary"><Icon type="plus" />新增</Button>
           <Search placeholder="请输入" style={{width:240,float:"right"}}/>
         </div>
-        <Table columns={columns} dataSource={dataSource} style={{marginTop:"24px"}}/>
+        <Table columns={columns} dataSource={dataSource} bordered style={{marginTop:"24px"}}/>
       </Card>
     </div>
   )

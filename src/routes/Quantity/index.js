@@ -9,89 +9,119 @@ const Quantity = ({ form }) => {
 
   const columns = [
     {
-      title:'列编卡号',
-      dataIndex:'quantityId',
-      key:'quantityId',
+      title: <div style={{textAlign:"center"}}>列编卡号</div>,
+      dataIndex: 'quantityId',
+      key: 'quantityId',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'姓名',
-      dataIndex:'name',
-      key:'name'
+      title: <div style={{textAlign:"center"}}>姓名</div>,
+      dataIndex: 'name',
+      key: 'name',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'身份证号',
-      dataIndex:'IDCard',
-      key:'IDCard'
+      title: <div style={{textAlign:"center"}}>身份证号</div>,
+      dataIndex: 'IDCard',
+      key: 'IDCard',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'编制类型',
-      dataIndex:'quantityType',
-      key:'quantityType'
+      title: <div style={{textAlign:"center"}}>编制类型</div>,
+      dataIndex: 'quantityType',
+      key: 'quantityType',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'调入单位',
-      dataIndex:'inCompany',
-      key:'inCompany',
-      width:300
+      title: <div style={{textAlign:"center"}}>调入单位</div>,
+      dataIndex: 'inCompany',
+      key: 'inCompany',
+      width: 300,
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'调出单位',
-      dataIndex:'outCompany',
-      key:'outCompany'
+      title: <div style={{textAlign:"center"}}>调出单位</div>,
+      dataIndex: 'outCompany',
+      key: 'outCompany',
+      render:(text)=>(
+        <div style={{textAlign:"center"}}>{text}</div>
+      )
     },
     {
-      title:'操作',
-      key:'option',
-      render:()=>(
-        <span>
+      title: <div style={{textAlign:"center"}}>操作</div>,
+      key: 'option',
+      render: () => (
+        <div style={{textAlign:"center"}}>
           <a>编辑</a>
           <Divider type="vertical" />
           <a>删除</a>
           <Divider type="vertical" />
           <a>打印</a>
-        </span>
+        </div>
       )
     }
   ];
 
   const dataSource = [
     {
-      quantityId:'001',
-      name:'张三',
-      IDCard:'13010519790402112',
-      quantityType:'行政',
-      inCompany:'机构编制委员会办公室机构编制委员会办公室机构编制委员会办公室',
-      outCompany:'人社局'
+      quantityId: '001',
+      name: '张三',
+      IDCard: '13010519790402112',
+      quantityType: '行政',
+      inCompany: '机构编制委员会办公室机构编制委员会办公室机构编制委员会办公室',
+      outCompany: '人社局'
     }
   ]
 
   const { getFieldDecorator } = form;
-
+  const formItemLayout = {
+    labelCol: { span: 6 },
+    wrapperCol: { span: 16 }
+  }
 
   const singleForm = (
     <Form layout="inline">
       <Row gutter={24}>
-        <Col span={8}>
-          <FormItem label={<span>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</span>} >
+        <Col span={6}>
+          <FormItem label={<span>列编卡号</span>} style={{ width: "100%" }} {...formItemLayout}>
+            {
+              getFieldDecorator('quantityId')(
+                <Input style={{ width: "100%" }} />
+              )
+            }
+          </FormItem>
+        </Col>
+        <Col span={6} >
+          <FormItem label={<span>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</span>} style={{ width: "100%" }} {...formItemLayout}>
             {
               getFieldDecorator('name')(
-                <Input />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8}>
-          <FormItem label="身份证号" style={{textAlign:'center'}} >
+        <Col span={6} >
+          <FormItem label="身份证号" style={{ width: "100%" }} {...formItemLayout}>
             {
               getFieldDecorator('IDCard')(
-                <Input />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8} >
-          <FormItem wrapperCol={{ span: 16, offset: 8 }} style={{textAlign:'right'}}>
-            <Button style={{ marginRight: 8 }}>查询</Button>
+        <Col span={6}>
+          <FormItem className={styles.formItemStyle} >
+            <Button type="primary" style={{ marginRight: 8 }}>查询</Button>
             <Button style={{ marginRight: 8 }}>重置</Button>
             <a>展开<Icon type="down" /></a>
           </FormItem>
@@ -104,58 +134,82 @@ const Quantity = ({ form }) => {
   const advanceForm = (
     <Form layout="inline">
       <Row gutter={24}>
-        <Col span={8} >
+        <Col span={6}>
+          <FormItem label={<span>列编卡号</span>}
+            className={styles.formItemStyle}
+            {...formItemLayout}
+          >
+            {
+              getFieldDecorator('quantityId')(
+                <Input style={{ width: "100%" }} />
+              )
+            }
+          </FormItem>
+        </Col>
+        <Col span={6} >
           <FormItem
             label={<span>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</span>}
-
             className={styles.formItemStyle}
+            {...formItemLayout}
           >
             {
               getFieldDecorator('name')(
-                <Input style={{width:"100%"}} />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8} >
-          <FormItem label="身份证号"    className={styles.formItemStyle} style={{textAlign:"center"}}>
+        <Col span={6} >
+          <FormItem label="身份证号"
+            className={styles.formItemStyle}
+            {...formItemLayout}
+          >
             {
               getFieldDecorator('IDCard')(
-                <Input style={{width:"100%"}} />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8} >
-          <FormItem label="编制性质"    className={styles.formItemStyle} style={{textAlign:"right"}}>
+        <Col span={6} >
+          <FormItem label="编制性质"
+            className={styles.formItemStyle}
+            {...formItemLayout}
+          >
             {
               getFieldDecorator('quantityType')(
-                <Input style={{width:"100%"}} />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8}  >
-          <FormItem label="调入单位"    className={styles.formItemStyle}>
+        <Col span={6}  >
+          <FormItem label="调入单位"
+            className={styles.formItemStyle}
+            {...formItemLayout}
+          >
             {
               getFieldDecorator('inCompany')(
-                <Input style={{width:"100%"}} />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8}  >
-          <FormItem label="调出单位"    className={styles.formItemStyle}  style={{textAlign:"center"}}>
+        <Col span={6}  >
+          <FormItem label="调出单位"
+            className={styles.formItemStyle}
+            {...formItemLayout}
+          >
             {
               getFieldDecorator('outCompany')(
-                <Input style={{width:"100%"}} />
+                <Input style={{ width: "100%" }} />
               )
             }
           </FormItem>
         </Col>
-        <Col span={8}>
-          <FormItem className={styles.formItemStyle}  style={{textAlign:"right"}}>
-            <Button style={{ marginRight: 8 }}>查询</Button>
+        <Col span={6} offset={6}>
+          <FormItem className={styles.formItemStyle} >
+            <Button type="primary"style={{ marginRight: 8 }}>查询</Button>
             <Button style={{ marginRight: 8 }}>重置</Button>
             <a>展开<Icon type="down" /></a>
           </FormItem>
@@ -169,9 +223,9 @@ const Quantity = ({ form }) => {
     <div style={{ margin: "-24px -24px 0" }}>
       <PageHeader title="列编管理" />
       <Card style={{ margin: "24px 24px 0" }}>
-        {advanceForm}
+        {singleForm}
         <Button type="primary"><Icon type="plus" />新增</Button>
-        <Table columns={columns} dataSource={dataSource} style={{marginTop:24}} />
+        <Table columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
       </Card>
 
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Input, Icon } from 'antd';
+import { Modal, Form, Input, Icon,InputNumber  } from 'antd';
 import { connect } from 'dva';
 const FormItem = Form.Item;
 
@@ -36,6 +36,9 @@ const CompanyForm = ({ dispatch, company, form }) => {
       });
       dispatch({
         type:'company/hideForm'
+      });
+      dispatch({
+        type:'company/getCompanys'
       })
     })
   }
@@ -68,7 +71,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>
@@ -80,7 +83,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>
@@ -92,7 +95,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>
@@ -104,7 +107,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>
@@ -116,7 +119,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>
@@ -128,7 +131,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 message:'输入数字'
               }]
             })(
-              <Input />
+              <InputNumber style={{width:"100%"}}/>
             )
           }
         </FormItem>

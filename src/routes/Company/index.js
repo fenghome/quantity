@@ -34,11 +34,11 @@ const Company = ({ dispatch, company }) => {
           )
         },
         {
-          title: <div style={{ textAlign: "center", fontSize: 12 }}>实有</div>,
+          title: <div style={{ textAlign: "center"}}>实有</div>,
           dataIndex: 'infactXZ',
           key: 'infactXZ',
           render: (text) => (
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center", fontSize: 12  }}>
               {text}
             </div>
           )

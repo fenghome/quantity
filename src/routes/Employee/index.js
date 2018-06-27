@@ -10,8 +10,8 @@ const Employee = ({ form }) => {
   const columns = [
     {
       title: <div style={{ textAlign: "center" }}>所在单位</div>,
-      dataIndex: 'company',
-      key: 'company',
+      dataIndex: 'companyName',
+      key: 'companyName',
       render: (text) => (
         <div style={{ textAlign: "center" }}>{text}</div>
       )
@@ -55,7 +55,7 @@ const Employee = ({ form }) => {
 
   const dataSource = [
     {
-      company: '机构编制委员会办公室',
+      companyName: '机构编制委员会办公室',
       name: '张三',
       IDCard: '13010519790402112',
       quantityType: '行政',

@@ -6,7 +6,7 @@ import CompanyForm from '../../components/Company/CompanyForm';
 
 const Search = Input.Search;
 
-const Company = ({ dispatch, company }) => {
+const Company = ({ dispatch, company, loading }) => {
   const { companys } = company;
   const columns = [
     {
@@ -235,7 +235,7 @@ const Company = ({ dispatch, company }) => {
       key: 'option',
       render: (text, record, index) => (
         <div style={{ textAlign: "center" }}>
-          <a onClick={() => { showForm(record) }}>编辑</a>
+          <a onClick={() => { showUpdateForm(record) }}>编辑</a>
           <Divider type="vertical" />
           <a>删除</a>
         </div>
@@ -245,11 +245,17 @@ const Company = ({ dispatch, company }) => {
   ];
 
 
-  const showForm = (record = null) => {
+  const showAddForm = () => {
     dispatch({
-      type: 'company/showForm',
-      payload: record
+      type: 'company/showAddForm',
     })
+  }
+
+  const showUpdateForm = (record) => {
+    dispatch({
+      type: 'company/showUpdateForm',
+      payload: record
+    });
   }
 
   return (
@@ -257,14 +263,26 @@ const Company = ({ dispatch, company }) => {
       <PageHeader title="单位管理" />
       <Card style={{ margin: "24px 24px 0" }}>
         <div>
-          <Button type="primary" onClick={showForm}><Icon type="plus" />新增</Button>
+          <Button type="primary" onClick={showAddForm}><Icon type="plus" />新增</Button>
           <Search placeholder="请输入" style={{ width: 240, float: "right" }} />
         </div>
-        <Table columns={columns} dataSource={companys} bordered style={{ marginTop: "24px" }} />
+        <Table
+          columns={columns}
+          dataSource={companys}
+          loading={loading}
+          bordered style={{ marginTop: "24px" }}
+        />
       </Card>
       <CompanyForm />
     </div>
   )
 }
 
-export default connect(({ company }) => ({ company }))(Company);
+function mapStateToProps(state) {
+  return {
+    company: state.company,
+    loading: state.loading.models.company
+  }
+}
+
+export default connect(mapStateToProps)(Company);

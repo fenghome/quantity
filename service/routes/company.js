@@ -47,8 +47,14 @@ router.get('/', function (req, res, next) {
 
 router.put('/', function (req, res, next) {
   const company = req.body;
-  res.send({
-    company
+  Company.update({ _id: company._id }, company, function (err, company) {
+    if (err) {
+      return res.send({ success: false });
+    }
+    return res.send({
+      success: true,
+      data: company
+    })
   })
 })
 

@@ -4,7 +4,7 @@ import { connect } from 'dva';
 const FormItem = Form.Item;
 
 const CompanyForm = ({ dispatch, company, form }) => {
-  const { formVisible, currentCompany } = company;
+  const { formVisible, isModify, currentCompany } = company;
   const { getFieldDecorator, validateFields, resetFields } = form;
   const formItemLayout = {
     labelCol: { span: 6 },
@@ -21,28 +21,30 @@ const CompanyForm = ({ dispatch, company, form }) => {
   const formSubmit = () => {
     validateFields((errors, values) => {
       if (errors) return;
-      const data = {
-        companyName: values.companyName,
-        quantityXZ: values.quantityXZ || 0,
-        quantityZF: values.quantityZF || 0,
-        quantityGQ: values.quantityGQ || 0,
-        quantityQE: values.quantityQE || 0,
-        quantityCE: values.quantityQE || 0,
-        quantityZS: values.quantityZS || 0
+      let data = formatFormData(values);
+      if (!isModify) {
+        dispatch({ type: 'company/saveCompany', payload: data });
+      } else {
+        data._id = currentCompany._id;
+        dispatch({ type: 'company/updateCompany', payload: data });
       }
-
-      dispatch({
-        type: 'company/saveCompany',
-        payload: data
-      });
-
-      dispatch({
-        type: 'company/reloadState'
-      });
+      dispatch({ type: 'company/hideForm' });
+      dispatch({ type: 'company/getCompanys' });
 
     })
   }
 
+  const formatFormData = (data) => {
+    return {
+      companyName: data.companyName,
+      quantityXZ: data.quantityXZ || 0,
+      quantityZF: data.quantityZF || 0,
+      quantityGQ: data.quantityGQ || 0,
+      quantityQE: data.quantityQE || 0,
+      quantityCE: data.quantityQE || 0,
+      quantityZS: data.quantityZS || 0
+    }
+  }
 
   return (
     <Modal
@@ -60,9 +62,7 @@ const CompanyForm = ({ dispatch, company, form }) => {
                 required: true,
                 message: '单位名称不能为空'
               }]
-            })(
-              <Input />
-              )
+            })(<Input />)
           }
         </FormItem>
         <FormItem label="行政编制数" {...formItemLayout}>

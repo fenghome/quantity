@@ -3,8 +3,9 @@ import request from '../utils/request';
 export default {
   namespace: 'company',
   state: {
-    formVisible: false,
     companys: [],
+    formVisible: false,
+    formModify: false,
     currentCompany: null
   },
 
@@ -40,29 +41,34 @@ export default {
       })
     },
 
-    *updateCompany({payload:data},{ call, put }){
-      const res = yield call(request,`/api/company`,{
-        method:'PUT',
-        body:data
+    *updateCompany({ payload: data }, { call, put }) {
+      const res = yield call(request, `/api/company`, {
+        method: 'PUT',
+        body: data
       })
     }
   },
   reducers: {
 
-    initState(state,action){
+    initState(state, action) {
       return {
-        formVisible: false,
         companys: [],
+        formVisible: false,
+        formModify: false,
         currentCompany: null
       }
     },
 
-    showForm(state, { payload: currentCompany }) {
-      return { ...state, formVisible: true, currentCompany }
+    showAddForm(state, action) {
+      return { ...state, formVisible: true, formModify: false, currentCompany: null }
+    },
+
+    showUpdateForm(state, { payload: currentCompany }) {
+      return { ...state, formVisible: true, formModify: true, currentCompany }
     },
 
     hideForm(state, action) {
-      return { ...state, formVisible: false }
+      return { ...state, formVisible: false, formModify: false, currentCompany: null }
     },
 
     setCompanys(state, { payload: companys }) {

@@ -21,6 +21,7 @@ router.post('/', function (req, res, next) {
     infactZS: 0,
     applyZS: 0,
   };
+
   Company.create(company, function (err, doc) {
     if (err) {
       return res.send({ success: false });
@@ -41,6 +42,13 @@ router.get('/', function (req, res, next) {
       success: true,
       data: companys
     });
+  })
+})
+
+router.put('/', function (req, res, next) {
+  const company = req.body;
+  res.send({
+    company
   })
 })
 

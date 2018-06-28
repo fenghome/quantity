@@ -34,11 +34,11 @@ const Company = ({ dispatch, company }) => {
           )
         },
         {
-          title: <div style={{ textAlign: "center"}}>实有</div>,
+          title: <div style={{ textAlign: "center" }}>实有</div>,
           dataIndex: 'infactXZ',
           key: 'infactXZ',
           render: (text) => (
-            <div style={{ textAlign: "center", fontSize: 12  }}>
+            <div style={{ textAlign: "center", fontSize: 12 }}>
               {text}
             </div>
           )
@@ -233,9 +233,9 @@ const Company = ({ dispatch, company }) => {
     {
       title: <div style={{ textAlign: "center" }}>操作</div>,
       key: 'option',
-      render: () => (
+      render: (text, record, index) => (
         <div style={{ textAlign: "center" }}>
-          <a>编辑</a>
+          <a onClick={() => { showForm(record) }}>编辑</a>
           <Divider type="vertical" />
           <a>删除</a>
         </div>
@@ -245,9 +245,10 @@ const Company = ({ dispatch, company }) => {
   ];
 
 
-  const showForm = () => {
+  const showForm = (record = null) => {
     dispatch({
-      type: 'company/showForm'
+      type: 'company/showForm',
+      payload: record
     })
   }
 
@@ -256,7 +257,7 @@ const Company = ({ dispatch, company }) => {
       <PageHeader title="单位管理" />
       <Card style={{ margin: "24px 24px 0" }}>
         <div>
-          <Button type="primary"  onClick={showForm}><Icon type="plus" />新增</Button>
+          <Button type="primary" onClick={showForm}><Icon type="plus" />新增</Button>
           <Search placeholder="请输入" style={{ width: 240, float: "right" }} />
         </div>
         <Table columns={columns} dataSource={companys} bordered style={{ marginTop: "24px" }} />

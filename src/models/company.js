@@ -5,13 +5,15 @@ export default {
   state: {
     formVisible: false,
     companys: [],
+    currentCompany: null
   },
+
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen(({ pathname }) => {
         if (pathname === '/company') {
           dispatch({
-            type: 'setDefaultState'
+            type: 'reloadState'
           })
         }
       });
@@ -19,8 +21,8 @@ export default {
   },
   effects: {
 
-    *setDefaultState(action, { call, put }) {
-      yield put({ type: 'hideForm' });
+    *reloadState(action, { call, put }) {
+      yield put({ type: 'initState' });
       yield put({ type: 'getCompanys' });
     },
 
@@ -36,15 +38,33 @@ export default {
         method: 'POST',
         body: data
       })
+    },
+
+    *updateCompany({payload:data},{ call, put }){
+      const res = yield call(request,`/api/company`,{
+        method:'PUT',
+        body:data
+      })
     }
   },
   reducers: {
-    showForm(state, action) {
-      return { ...state, formVisible: true }
+
+    initState(state,action){
+      return {
+        formVisible: false,
+        companys: [],
+        currentCompany: null
+      }
     },
+
+    showForm(state, { payload: currentCompany }) {
+      return { ...state, formVisible: true, currentCompany }
+    },
+
     hideForm(state, action) {
       return { ...state, formVisible: false }
     },
+
     setCompanys(state, { payload: companys }) {
       return { ...state, companys }
     }

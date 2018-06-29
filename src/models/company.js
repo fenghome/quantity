@@ -1,4 +1,5 @@
 import request from '../utils/request';
+import { message } from 'antd';
 
 export default {
   namespace: 'company',
@@ -6,7 +7,7 @@ export default {
     companys: [],
     formVisible: false,
     formModify: false,
-    currentCompany: null
+    currentCompany: null,
   },
 
   subscriptions: {
@@ -20,6 +21,7 @@ export default {
       });
     },
   },
+
   effects: {
 
     *reloadState(action, { call, put }) {
@@ -38,18 +40,49 @@ export default {
       const res = yield call(request, `/api/company`, {
         method: 'POST',
         body: data
-      })
+      });
+      if (!res.success) {
+        message.info('新增失败')
+      }
+      yield put({ type: 'getCompanys' });
+      yield put({ type: 'hideForm' });
     },
 
     *updateCompany({ payload: data }, { call, put }) {
+      yield put({ type: 'setCurrentCompany', payload: data });
       const res = yield call(request, `/api/company`, {
         method: 'PUT',
         body: data
-      })
+      });
+      if(!res.success){
+        message.info('更新失败');
+      }
+      yield put({ type: 'getCompanys' });
+      yield put({ type: 'hideForm' });
+    },
+
+    *deleteCompany({ payload: data }, { call, put }) {
+      const res = yield call(request, `/api/company/${data._id}`, {
+        method: 'DELETE'
+      });
+      const resObj = JSON.parse(res);
+      if(!resObj.success){
+        message.info('删除失败');
+      }
+      yield put({ type: 'getCompanys' });
+    },
+
+    *searchCompany({ payload: value }, { call, put }) {
+      const res = yield call(request, `/api/company/${value}`, {
+        method: 'GET'
+      });
+      if (res.success) {
+        yield put({ type: 'setCompanys', payload: res.data })
+      }
     }
   },
-  reducers: {
 
+  reducers: {
     initState(state, action) {
       return {
         companys: [],
@@ -71,8 +104,12 @@ export default {
       return { ...state, formVisible: false, formModify: false, currentCompany: null }
     },
 
+    setCurrentCompany(state, { payload: currentCompany }) {
+      return { ...state, currentCompany }
+    },
+
     setCompanys(state, { payload: companys }) {
       return { ...state, companys }
-    }
+    },
   }
 }

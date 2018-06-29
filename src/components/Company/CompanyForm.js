@@ -1,10 +1,10 @@
 import React from 'react';
-import { Modal, Form, Input, Icon, InputNumber } from 'antd';
+import { Modal, Form, Input, Icon, InputNumber, message } from 'antd';
 import { connect } from 'dva';
 const FormItem = Form.Item;
 
 const CompanyForm = ({ dispatch, company, form }) => {
-  const { formVisible, isModify, currentCompany } = company;
+  const { formVisible, formModify, currentCompany } = company;
   const { getFieldDecorator, validateFields, resetFields } = form;
   const formItemLayout = {
     labelCol: { span: 6 },
@@ -22,15 +22,13 @@ const CompanyForm = ({ dispatch, company, form }) => {
     validateFields((errors, values) => {
       if (errors) return;
       let data = formatFormData(values);
-      if (!isModify) {
+      if (!formModify) {
         dispatch({ type: 'company/saveCompany', payload: data });
       } else {
         data._id = currentCompany._id;
         dispatch({ type: 'company/updateCompany', payload: data });
-      }
-      dispatch({ type: 'company/hideForm' });
-      dispatch({ type: 'company/getCompanys' });
-
+      };
+      resetFields();
     })
   }
 

@@ -34,7 +34,7 @@ router.post('/', function (req, res, next) {
 });
 
 router.get('/', function (req, res, next) {
-  Company.find({}, function (err, companys) {
+  Company.find().sort({"_id":-1}).exec(function (err, companys) {
     if (err) {
       return res.send({ success: false });
     }
@@ -54,6 +54,32 @@ router.put('/', function (req, res, next) {
     return res.send({
       success: true,
       data: company
+    })
+  })
+})
+
+router.delete('/:id', function (req, res, next) {
+  const id = req.params.id;
+  Company.deleteOne({ _id: id }, function (err, company) {
+    if (err) {
+      return res.send({ success: false });
+    }
+    return res.send({
+      success: true,
+      data: company
+    })
+  })
+})
+
+router.get('/:value', function (req, res, next) {
+  const value = req.params.value;
+  Company.find({ companyName: new RegExp(value) }, function (err, companys) {
+    if (err) {
+      res.send({ success: false })
+    }
+    return res.send({
+      success: true,
+      data: companys
     })
   })
 })

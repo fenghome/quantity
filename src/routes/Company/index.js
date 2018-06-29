@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, Icon, Input, Table, Divider } from 'antd';
+import { Card, Button, Icon, Input, Table, Divider, Popconfirm } from 'antd';
 import { connect } from 'dva';
 import PageHeader from '../../components/PageHeader';
 import CompanyForm from '../../components/Company/CompanyForm';
@@ -237,7 +237,9 @@ const Company = ({ dispatch, company, loading }) => {
         <div style={{ textAlign: "center" }}>
           <a onClick={() => { showUpdateForm(record) }}>编辑</a>
           <Divider type="vertical" />
-          <a>删除</a>
+          <Popconfirm title="确定删除该单位吗?" onConfirm={() => { deleteCompany(record) }} okText="是" cancelText="否">
+            <a href="#">删除</a>
+          </Popconfirm>
         </div>
       ),
       width: 120
@@ -258,17 +260,36 @@ const Company = ({ dispatch, company, loading }) => {
     });
   }
 
+  const deleteCompany = (record) => {
+    dispatch({
+      type: 'company/deleteCompany',
+      payload: record
+    })
+  }
+
+  const searchCompany = (value) => {
+    dispatch({
+      type: 'company/searchCompany',
+      payload: value
+    })
+  }
+
   return (
     <div style={{ margin: "-24px -24px 0" }}>
       <PageHeader title="单位管理" />
       <Card style={{ margin: "24px 24px 0" }}>
         <div>
           <Button type="primary" onClick={showAddForm}><Icon type="plus" />新增</Button>
-          <Search placeholder="请输入" style={{ width: 240, float: "right" }} />
+          <Search
+            placeholder="请输入单位名称"
+            onSearch={value => searchCompany(value)}
+            style={{ width: 240, float: "right" }}
+          />
         </div>
         <Table
           columns={columns}
           dataSource={companys}
+          rowKey={record => record._id}
           loading={loading}
           bordered style={{ marginTop: "24px" }}
         />

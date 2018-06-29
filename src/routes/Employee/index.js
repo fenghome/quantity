@@ -1,11 +1,14 @@
 import React from 'react';
 import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider } from 'antd';
+import { connect } from 'dva';
 import PageHeader from '../../components/PageHeader';
+import EmployeeForm from '../../components/Employee/EmployeeForm';
 import styles from './index.less';
 const FormItem = Form.Item;
 
 
-const Employee = ({ form }) => {
+const Employee = ({ dispatch, form, employee }) => {
+  const { searchFormOpen } = employee;
 
   const columns = [
     {
@@ -100,7 +103,7 @@ const Employee = ({ form }) => {
           <FormItem style={{ marginBottom: 24 }}>
             <Button type="primary" style={{ marginRight: 8 }}>查询</Button>
             <Button style={{ marginRight: 8 }}>重置</Button>
-            <a>展开<Icon type="down" /></a>
+            <a onClick={() => openSearchForm()}>展开<Icon type="down" /></a>
           </FormItem>
 
         </Col>
@@ -164,25 +167,52 @@ const Employee = ({ form }) => {
           <FormItem style={{ marginBottom: 24 }}>
             <Button type="primary" style={{ marginRight: 8 }}>查询</Button>
             <Button style={{ marginRight: 8 }}>重置</Button>
-            <a>收起<Icon type="up" /></a>
+            <a onClick={() => closeSearchForm()}>收起<Icon type="up" /></a>
           </FormItem>
         </Col>
       </Row>
-
     </Form>
   )
 
+  const openSearchForm = () => {
+    console.log('aaaa');
+    dispatch({
+      type: 'employee/setSearchForm',
+      payload: true
+    })
+  }
+
+  const closeSearchForm = () => {
+    dispatch({
+      type: 'employee/setSearchForm',
+      payload: false
+    })
+  }
+
+  const showEmployeeForm = () =>{
+    dispatch({
+      type:'employee/showEmployeeForm'
+    })
+  }
+
   return (
     <div style={{ margin: "-24px -24px 0" }}>
-      <PageHeader title="列编管理" />
+      <PageHeader title="人员管理" />
       <Card style={{ margin: "24px 24px 0" }}>
-        {singleForm}
-        <Button type="primary"><Icon type="plus" />新增</Button>
+        {searchFormOpen ? advanceForm : singleForm}
+        <Button
+          type="primary"
+          onClick={showEmployeeForm}
+        ><Icon type="plus" />新增</Button>
         <Table columns={columns} dataSource={dataSource} bordered style={{ marginTop: 24 }} />
       </Card>
-
+      <EmployeeForm />
     </div>
   )
 }
 
-export default Form.create()(Employee);
+function mapStateToProps(state) {
+  return { employee: state.employee }
+}
+
+export default connect(mapStateToProps)(Form.create()(Employee));

@@ -67,15 +67,24 @@ export default {
       let res = yield call(request, `/api/employee/${employee._id}/${employee.company._id}/${employee.quantityType}`, {
         method: 'DELETE'
       });
-
       res = JSON.parse(res);
-      console.log(res);
       if (!res.success) {
         message.info('删除失败');
       } else {
         yield put({ type: 'getEmployees' });
       }
+    },
 
+    *searchEmployee({ payload: value }, { call, put, select }) {
+      const searchKey = yield select(state => state.employee.searchKey);
+      const res = yield call(request, `/api/employee/?key=${searchKey}&&value=${value}`, {
+        method: 'GET'
+      });
+      if (!res.success) {
+        message.info('查询失败');
+      } else {
+        yield put({ type: 'setEmployees', payload: res.data })
+      }
     },
 
     *getCompanys(action, { call, put }) {

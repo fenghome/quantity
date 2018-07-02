@@ -21,6 +21,7 @@ const CompanySchema = Schema({
   quantityZS: { type: Number },
   infactZS: { type: Number },
   applyZS: { type: Number },
+  employees: [{ type: Schema.Types.ObjectId, ref: "Employee" }]
 })
 
-module.exports = mongoose.model('Company',CompanySchema);
+module.exports = mongoose.model('Company', CompanySchema);

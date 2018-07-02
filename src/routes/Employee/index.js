@@ -225,7 +225,7 @@ const Employee = ({ dispatch, form, employee, loading }) => {
       <Card style={{ margin: "24px 24px 0" }}>
         <Button type="primary" onClick={showEmployeeForm}><Icon type="plus" />新增</Button>
         <InputGroup compact style={{ float: "right", width: 340 }}>
-          <Select defaultValue={searchKey} onSelect={() => selectSearchKey(key)} style={{ width: "30%" }}>
+          <Select defaultValue={searchKey} onSelect={(key) => selectSearchKey(key)} style={{ width: "30%" }}>
             <Option key="name">姓名</Option>
             <Option key="companyName">所属单位</Option>
             <Option key="IDCard">身份证号</Option>

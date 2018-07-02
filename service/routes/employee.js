@@ -5,19 +5,46 @@ const mongoose = require('mongoose');
 const router = express.Router();
 
 router.get('/', function (req, res, next) {
-  Employee.find({}).populate('company', 'companyName').exec(function (err, doc) {
-    if (err) {
-      return res.send({
-        success: false
-      })
-    }
+  const filterProp = req.query.key;
+  const filterValue = req.query.value;
+  let filterEmployee = {}
+  if (filterProp == "companyName") {
+    Company.find({ companyName: new RegExp(filterProp) }, { employees: 1 }, function (err, doc) {
+      let employees = [];
+      doc.forEach(item => {
+        item.forEach(employeeId => {
+          employees.push(employeeId)
+        })
+      });
+      Employee.find({ _id: { $in: employees } })
+        .populate('company', 'companyName')
+        .exec(function (err, doc) {
 
-    return res.send({
-      success: true,
-      data: doc
+        })
     })
-  })
+  } else {
+
+  }
+
+  // if (filterProp) {
+  //   filterEmployee[filterProp] = new RegExp(filterValue);
+  // }
+  Employee.find(filterEmployee)
+    .populate({ path: 'company', select: { companyName: 1 } })
+    .exec(function (err, doc) {
+      if (err) {
+        return res.send({
+          success: false
+        })
+      }
+      return res.send({
+        success: true,
+        data: doc
+      })
+    })
 });
+
+
 
 router.post('/', function (req, res, next) {
   let employee = req.body;
@@ -32,6 +59,7 @@ router.post('/', function (req, res, next) {
       let updateCompany = {};
       let updateProp = 'infact' + employee.quantityType.slice(-2)
       updateCompany[updateProp] = findCompany[updateProp] + 1;
+      updateCompany.employees = [...findCompany.employees, new mongoose.Types.ObjectId(doc._id)]
       Company.update({ _id: companyId }, updateCompany, function (err, doc) {
         if (err) return res.send({ success: false });
         return res.send({ success: true, data: doc });
@@ -62,6 +90,7 @@ router.delete('/:employeeId/:companyId/:quantityType', function (req, res, next)
       let updateCompany = {};
       const quantityProp = 'infact' + quantityType.slice(-2);
       updateCompany[quantityProp] = findCompany[quantityProp] - 1;
+      updateCompany.employees = findCompany.employees.filter(item => { return item._id != employeeId });
       Company.update({ _id: companyId }, updateCompany, function (err, doc) {
         if (err) return res.send({ success: false });
         return res.send({

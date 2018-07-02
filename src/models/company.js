@@ -54,7 +54,7 @@ export default {
         method: 'PUT',
         body: data
       });
-      if(!res.success){
+      if (!res.success) {
         message.info('更新失败');
       }
       yield put({ type: 'getCompanys' });
@@ -66,8 +66,8 @@ export default {
         method: 'DELETE'
       });
       const resObj = JSON.parse(res);
-      if(!resObj.success){
-        message.info('删除失败');
+      if (!resObj.success) {
+        message.info(resObj.message);
       }
       yield put({ type: 'getCompanys' });
     },

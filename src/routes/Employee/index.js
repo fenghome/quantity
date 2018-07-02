@@ -227,9 +227,9 @@ const Employee = ({ dispatch, form, employee, loading }) => {
         <InputGroup compact style={{ float: "right", width: 340 }}>
           <Select defaultValue={searchKey} onSelect={(key) => selectSearchKey(key)} style={{ width: "30%" }}>
             <Option key="name">姓名</Option>
-            <Option key="companyName">所属单位</Option>
+            <Option key="companyName">所在单位</Option>
             <Option key="IDCard">身份证号</Option>
-            <Option key="quantityType">编制类型</Option>
+            <Option key="quantityName">编制类型</Option>
           </Select>
           <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
         </InputGroup>

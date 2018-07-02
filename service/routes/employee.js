@@ -6,32 +6,30 @@ const router = express.Router();
 
 router.get('/', function (req, res, next) {
   const filterProp = req.query.key;
-  const filterValue = req.query.value;
-  let filterEmployee = {}
+  let filterValue = req.query.value;
+
   if (filterProp == "companyName") {
-    Company.find({ companyName: new RegExp(filterProp) }, { employees: 1 }, function (err, doc) {
+    Company.find({ companyName: new RegExp(filterValue) }, { employees: 1 }, function (err, doc) {
       let employees = [];
       doc.forEach(item => {
-        item.forEach(employeeId => {
-          employees.push(employeeId)
-        })
+        employees = [...employees, ...item.employees];
       });
       Employee.find({ _id: { $in: employees } })
         .populate('company', 'companyName')
-        .exec(function (err, doc) {
-
+        .exec(function (err, findEmployees) {
+          if (err) return res.send({ success: false });
+          return res.send({ success: true, data: findEmployees });
         })
     })
-  } else {
-
   }
 
-  // if (filterProp) {
-  //   filterEmployee[filterProp] = new RegExp(filterValue);
-  // }
+  let filterEmployee = {}
+  if (filterProp) {
+    filterEmployee[filterProp] = new RegExp(filterValue);
+  }
   Employee.find(filterEmployee)
     .populate({ path: 'company', select: { companyName: 1 } })
-    .exec(function (err, doc) {
+    .exec(function (err, findEmployees) {
       if (err) {
         return res.send({
           success: false
@@ -39,12 +37,10 @@ router.get('/', function (req, res, next) {
       }
       return res.send({
         success: true,
-        data: doc
+        data: findEmployees
       })
     })
 });
-
-
 
 router.post('/', function (req, res, next) {
   let employee = req.body;

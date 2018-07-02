@@ -1,5 +1,6 @@
 var express = require('express');
 const Company = require('../models/company');
+const Employee = require('../models/employee');
 var router = express.Router();
 
 
@@ -34,7 +35,7 @@ router.post('/', function (req, res, next) {
 });
 
 router.get('/', function (req, res, next) {
-  Company.find().sort({"_id":-1}).exec(function (err, companys) {
+  Company.find().sort({ "_id": -1 }).exec(function (err, companys) {
     if (err) {
       return res.send({ success: false });
     }
@@ -60,13 +61,19 @@ router.put('/', function (req, res, next) {
 
 router.delete('/:id', function (req, res, next) {
   const id = req.params.id;
-  Company.deleteOne({ _id: id }, function (err, company) {
-    if (err) {
-      return res.send({ success: false });
+  Company.findOne({ _id: id }, function (err, company) {
+    if (err) return res.send({ success: false, message: "删除失败" });
+    if (company.employees.length > 0) {
+      return res.send({ success: false, message: "单位有人员，不能删除" });
     }
-    return res.send({
-      success: true,
-      data: company
+    Company.deleteOne({ _id: id }, function (err, company) {
+      if (err) {
+        return res.send({ success: false, message: "删除失败" });
+      }
+      return res.send({
+        success: true,
+        data: company
+      })
     })
   })
 })

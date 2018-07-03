@@ -9,37 +9,39 @@ router.get('/', function (req, res, next) {
   let filterValue = req.query.value;
 
   if (filterProp == "companyName") {
-    Company.find({ companyName: new RegExp(filterValue) }, { employees: 1 }, function (err, doc) {
-      let employees = [];
-      doc.forEach(item => {
-        employees = [...employees, ...item.employees];
+    Company.find({ companyName: new RegExp(filterValue) }, { _id: 1 }, function (err, companys) {
+      if (err) return res.send({ success: false });
+      companys = companys.map(company => {
+        return company._id
       });
-      Employee.find({ _id: { $in: employees } })
+      Employee.find({ company: { $in: companys } })
         .populate('company', 'companyName')
         .exec(function (err, findEmployees) {
           if (err) return res.send({ success: false });
           return res.send({ success: true, data: findEmployees });
-        })
+        });
     })
+  } else {
+    let filterEmployee = {}
+    if (filterProp) {
+      filterEmployee[filterProp] = new RegExp(filterValue);
+    }
+    Employee.find(filterEmployee)
+      .populate({ path: 'company', select: { companyName: 1 } })
+      .exec(function (err, findEmployees) {
+        if (err) {
+          return res.send({
+            success: false
+          })
+        }
+        return res.send({
+          success: true,
+          data: findEmployees
+        })
+      })
   }
 
-  let filterEmployee = {}
-  if (filterProp) {
-    filterEmployee[filterProp] = new RegExp(filterValue);
-  }
-  Employee.find(filterEmployee)
-    .populate({ path: 'company', select: { companyName: 1 } })
-    .exec(function (err, findEmployees) {
-      if (err) {
-        return res.send({
-          success: false
-        })
-      }
-      return res.send({
-        success: true,
-        data: findEmployees
-      })
-    })
+
 });
 
 router.post('/', function (req, res, next) {

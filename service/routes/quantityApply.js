@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', function (req, res, next) {
   QuantityApply
     .find()
-    .populate('company', 'companyName')
+    .populate('company', { employees: 0 })
     .sort({ _id: -1 })
     .exec(function (err, quantityApplys) {
       if (err) return res.send({ success: false });
@@ -29,15 +29,26 @@ router.post('/', function (req, res, next) {
     values.quantityName = getQuantityName(values.quantityType);
     QuantityApply.create(values, function (err, quantityApply) {
       if (err) return res.send({ success: false });
+
       return res.send({
         success: true,
         data: quantityApply
       })
     })
   })
-
 });
 
-
+router.put('/', function (req, res, next) {
+  let quantityApply = req.body;
+  quantityApply.company = new mongoose.Types.ObjectId(quantityApply.company);
+  quantityApply.quantityName = getQuantityName(quantityApply.quantityType);
+  QuantityApply.update({ _id: quantityApply }, quantityApply, function (err, doc) {
+    if (err) return res.send({ success: false });
+    return res.send({
+      success: true,
+      data: doc
+    })
+  })
+})
 
 module.exports = router;

@@ -53,6 +53,14 @@ export default {
       }
     },
 
+    *updateQuantityApply({payload:values},{put,call}){
+      const res = yield call(request,`/api/quantityapply`,{
+        method:'PUT',
+        body:values
+      });
+
+    },
+
     *getCompanys(action, { put, call }) {
       const res = yield call(request, `/api/company`, {
         method: 'GET'

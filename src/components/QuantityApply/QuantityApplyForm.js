@@ -17,6 +17,10 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
     validateFields((err, values) => {
       if (err) return;
       if (formModify) {
+        dispatch({
+          type:'quantityApply/updateQuantityApply',
+          payload:values
+        })
       } else {
         dispatch({
           type: 'quantityApply/addQuantityApply',

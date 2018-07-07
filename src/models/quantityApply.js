@@ -7,7 +7,7 @@ export default {
     quantityApplys: [],
     formVisible: false,
     formModify: false,
-    currentQuantityApply: [],
+    currentQuantityApply: null,
     companys: [],
   },
 
@@ -53,10 +53,10 @@ export default {
       }
     },
 
-    *updateQuantityApply({payload:values},{put,call}){
-      const res = yield call(request,`/api/quantityapply`,{
-        method:'PUT',
-        body:values
+    *updateQuantityApply({ payload: values }, { put, call }) {
+      const res = yield call(request, `/api/quantityapply`, {
+        method: 'PUT',
+        body: values
       });
 
     },
@@ -88,7 +88,6 @@ export default {
     },
 
     showUpdateForm(state, { payload: currentQuantityApply }) {
-      console.log(currentQuantityApply);
       return { ...state, formVisible: true, formModify: true, currentQuantityApply }
     },
 
@@ -102,6 +101,10 @@ export default {
 
     setCompanys(state, { payload: companys }) {
       return { ...state, companys }
+    },
+
+    updateQuantityApply(state, { payload: currentQuantityApply }) {
+      return { ...state, currentQuantityApply }
     }
   }
 

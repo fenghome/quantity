@@ -159,3 +159,11 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-
 export function isUrl(path) {
   return reg.test(path);
 }
+
+export function getQuantityApplyProp(quantityType) {
+  return "apply" + quantityType.slice(-2);
+}
+
+export function getQuantityInfactProp(quantityType) {
+  return "infact" + quantityType.slice(-2);
+}

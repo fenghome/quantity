@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 import { Modal, Form, Select, InputNumber } from 'antd';
+import { getQuantityApplyProp, getQuantityInfactProp } from '../../utils/utils';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -18,8 +19,8 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
       if (err) return;
       if (formModify) {
         dispatch({
-          type:'quantityApply/updateQuantityApply',
-          payload:values
+          type: 'quantityApply/updateQuantityApply',
+          payload: values
         })
       } else {
         dispatch({
@@ -27,7 +28,6 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
           payload: values
         });
       }
-
       resetFields();
     })
   }
@@ -37,6 +37,26 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
       type: 'quantityApply/hideForm'
     });
     resetFields();
+  }
+
+  const onSelectCompany = (key) => {
+    let currObj = { ...currentQuantityApply } || {};
+    const company = companys.find(company => {
+      return company._id == key;
+    });
+    if (currObj.quantityType) {
+      const quantityType = company.quantityType;
+      const infactProp = getQuantityInfactProp(quantityType);
+      const applyProp = getQuantityApplyProp(quantityType);
+      const mayNumber = company[quantityType] - company[infactProp] - company[applyProp];
+      currObj = { ...currObj, company, mayNumber };
+    } else {
+      currObj = { ...currObj, company };
+    }
+    dispatch({
+      type: 'quantityApply/updateCurrQuantityApply',
+      payload: currObj
+    })
   }
 
   return (
@@ -56,7 +76,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                 message: "请选择单位"
               }]
             })(
-              <Select showSearch optionFilterProp="children">
+              <Select showSearch optionFilterProp="children" onSelect={key => onSelectCompany(key)}>
                 {
                   companys.map(company => (
                     <Option key={company._id}>{company.companyName}</Option>
@@ -101,7 +121,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                 }
               ]
             })(
-              <InputNumber />
+              <div><InputNumber /><span style={{ marginLeft: 48 }}>可用编制数:{}</span></div>
               )
           }
         </FormItem>

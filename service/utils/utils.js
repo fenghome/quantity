@@ -16,3 +16,22 @@ exports.getQuantityName = function getQuantityName(quantityType) {
       break;
   }
 }
+
+exports.getQuantityApplyProp = function getQuantityApplyProp(quantityType) {
+  switch (quantityType) {
+    case "quantityXZ":
+      return "applyXZ"
+    case "quantityZF":
+      return "applyZF"
+    case "quantityGQ":
+      return "applyGQ"
+    case "quantityQE":
+      return "applyQE"
+    case "quantityCE":
+      return "applyCE"
+    case "quantityZS":
+      return "applyZS"
+    default:
+      break;
+  }
+}

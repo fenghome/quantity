@@ -103,7 +103,7 @@ export default {
       return { ...state, companys }
     },
 
-    updateQuantityApply(state, { payload: currentQuantityApply }) {
+    updateCurrQuantityApply(state, { payload: currentQuantityApply }) {
       return { ...state, currentQuantityApply }
     }
   }

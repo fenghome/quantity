@@ -45,7 +45,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
       return company._id == key;
     });
     if (currObj.quantityType) {
-      const quantityType = company.quantityType;
+      const quantityType = currObj.quantityType;
       const infactProp = getQuantityInfactProp(quantityType);
       const applyProp = getQuantityApplyProp(quantityType);
       const mayNumber = company[quantityType] - company[infactProp] - company[applyProp];
@@ -57,6 +57,29 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
       type: 'quantityApply/updateCurrQuantityApply',
       payload: currObj
     })
+  };
+
+  const onSelectQuantityType = (quantityType) => {
+    let currObj = { ...currentQuantityApply } || {};
+    currObj.quantityType = quantityType;
+    if (currObj.company) {
+      const infactProp = getQuantityInfactProp(quantityType);
+      const applyProp = getQuantityApplyProp(quantityType);
+      const mayNumber = currObj.company[quantityType] - currObj.company[infactProp] - currObj.company[applyProp];
+      currObj.mayNumber = mayNumber;
+    }
+    dispatch({
+      type: 'quantityApply/updateCurrQuantityApply',
+      payload: currObj
+    });
+  }
+
+  const aaaaaa = (rule, value, callback)=>{
+    console.log('value',value);
+    if(value>3){
+      callback("不能大于3");
+    }
+    callback();
   }
 
   return (
@@ -95,7 +118,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                 message: '请选择编制类型'
               }]
             })(
-              <Select>
+              <Select onSelect={key => onSelectQuantityType(key)}>
                 <Option key="quantityXZ">行政</Option>
                 <Option key="quantityZF">政法</Option>
                 <Option key="quantityGQ">工勤</Option>
@@ -116,12 +139,20 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                   message: '请输入拟用编制数'
                 },
                 {
-                  pattern: /^\+?[1-9]\d*$/,
+                  pattern: new RegExp(currentQuantityApply && currentQuantityApply.mayNumber && currentQuantityApply.mayNumber + "^\+?[1-9]\d*$"),
                   message: "编制数为大于零的整数"
-                }
+                },
               ]
             })(
-              <div><InputNumber /><span style={{ marginLeft: 48 }}>可用编制数:{}</span></div>
+              <div>
+                <InputNumber />
+                <span style={{ marginLeft: 24 }}>
+                  可用编制数:
+                  <span style={{ marginLeft: 8, fontWeight: 400 }}>
+                    {currentQuantityApply && currentQuantityApply.mayNumber}
+                  </span>
+                </span>
+              </div>
               )
           }
         </FormItem>

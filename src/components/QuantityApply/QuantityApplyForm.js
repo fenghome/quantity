@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Form, Select, InputNumber } from 'antd';
+import { Modal, Form, Select, InputNumber, Input } from 'antd';
 import { getQuantityApplyProp, getQuantityInfactProp } from '../../utils/utils';
 
 const FormItem = Form.Item;
@@ -139,13 +139,23 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                   message: '请输入拟用编制数'
                 },
                 {
-                  pattern: new RegExp(currentQuantityApply && currentQuantityApply.mayNumber && currentQuantityApply.mayNumber + "^\+?[1-9]\d*$"),
+                  pattern: /^\+?[1-9]\d*$/,
                   message: "编制数为大于零的整数"
                 },
+                {
+                  validator:(rule, value, callback)=>{
+                    if(currentQuantityApply && currentQuantityApply.mayNumber){
+                      if(parseInt(value)> currentQuantityApply.mayNumber){
+                        callback("不能大于可使用编制数");
+                      } 
+                    }
+                    callback();
+                  }
+                }
               ]
             })(
               <div>
-                <InputNumber />
+                <Input style={{width:100}}/>
                 <span style={{ marginLeft: 24 }}>
                   可用编制数:
                   <span style={{ marginLeft: 8, fontWeight: 400 }}>

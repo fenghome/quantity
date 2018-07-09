@@ -21,6 +21,11 @@ const menuData = [
     icon: 'dashboard',
     path: 'employee',
   },
+  {
+    name:'测试',
+    icon:'dashboard',
+    path:'test'
+  }
 ];
 
 function formatter(data, parentPath = '/', parentAuthority) {

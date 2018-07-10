@@ -60,7 +60,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
   };
 
   const onSelectQuantityType = (quantityType) => {
-    let currObj = { ...currentQuantityApply } || {};
+    let currObj = { ...f } || {};
     currObj.quantityType = quantityType;
     if (currObj.company) {
       const infactProp = getQuantityInfactProp(quantityType);
@@ -75,7 +75,8 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
   }
 
   const getMayNumber = () => {
-
+    const { _id,quantityType } = currentQuantityApply;
+    
   }
 
   return (
@@ -156,7 +157,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
         </FormItem>
         <FormItem label="可用编制数:" {...formItemLayout}>
           <span style={{ fontWeight: 400 }}>
-            {currentQuantityApply && currentQuantityApply.mayNumber}
+            {formModify && getMayNumber()}
           </span>
         </FormItem>
 

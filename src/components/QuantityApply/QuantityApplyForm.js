@@ -74,12 +74,8 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
     });
   }
 
-  const aaaaaa = (rule, value, callback)=>{
-    console.log('value',value);
-    if(value>3){
-      callback("不能大于3");
-    }
-    callback();
+  const getMayNumber = () => {
+
   }
 
   return (
@@ -132,7 +128,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
         <FormItem {...formItemLayout} label="拟用编制数">
           {
             getFieldDecorator('applyNumber', {
-              initialValue: currentQuantityApply ? currentQuantityApply.applyNumber : "",
+              initialValue: formModify ? currentQuantityApply.applyNumber : "",
               rules: [
                 {
                   required: true,
@@ -143,29 +139,27 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                   message: "编制数为大于零的整数"
                 },
                 {
-                  validator:(rule, value, callback)=>{
-                    if(currentQuantityApply && currentQuantityApply.mayNumber){
-                      if(parseInt(value)> currentQuantityApply.mayNumber){
+                  validator: (rule, value, callback) => {
+                    if (currentQuantityApply && currentQuantityApply.mayNumber) {
+                      if (parseInt(value) > currentQuantityApply.mayNumber) {
                         callback("不能大于可使用编制数");
-                      } 
+                      }
                     }
                     callback();
                   }
                 }
               ]
             })(
-              <div>
-                <Input style={{width:100}}/>
-                <span style={{ marginLeft: 24 }}>
-                  可用编制数:
-                  <span style={{ marginLeft: 8, fontWeight: 400 }}>
-                    {currentQuantityApply && currentQuantityApply.mayNumber}
-                  </span>
-                </span>
-              </div>
+              <Input style={{ width: 100 }} />
               )
           }
         </FormItem>
+        <FormItem label="可用编制数:" {...formItemLayout}>
+          <span style={{ fontWeight: 400 }}>
+            {currentQuantityApply && currentQuantityApply.mayNumber}
+          </span>
+        </FormItem>
+
       </Form>
     </Modal>
   )

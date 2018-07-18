@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Card, Button, Icon, Input, Table, Divider } from 'antd';
+import { Card, Button, Icon, Input, Table, Divider, Popconfirm } from 'antd';
 import PageHeader from '../../components/PageHeader';
 import QuantityApplyForm from '../../components/QuantityApply/QuantityApplyForm';
+import { getQuantityApplyProp, getQuantityInfactProp } from '../../utils/utils';
 const Search = Input.Search;
 
 const QuantityApply = ({ dispatch, quantityApply, loading }) => {
-  const { quantityApplys } = quantityApply;
+  const { quantityApplys, companys } = quantityApply;
   const columns = [
     {
       title: <div style={{ textAlign: "center" }}>编号</div>,
@@ -47,7 +48,9 @@ const QuantityApply = ({ dispatch, quantityApply, loading }) => {
         <div style={{ textAlign: "center" }}>
           <a onClick={() => showUpdateForm(record)}>编辑</a>
           <Divider type="vertical" />
-          <a>删除</a>
+          <Popconfirm title="确定要删除此条信心吗?" onConfirm={()=> deleteQuantityApply(record)}  okText="是" cancelText="否">
+            <a href="#">删除</a>
+          </Popconfirm>,
         </div>
       )
     }
@@ -66,10 +69,35 @@ const QuantityApply = ({ dispatch, quantityApply, loading }) => {
   }
 
   const showUpdateForm = (record) => {
+    const company = companys.find(item => {
+      return item._id == record.company._id
+    });
+    const quantityType = record.quantityType;
+    const infactProp = getQuantityInfactProp(quantityType);
+    const applyProp = getQuantityApplyProp(quantityType);
+    const mayNumber = parseInt(company[quantityType]) - parseInt(company[infactProp]) - parseInt(company[applyProp]);
+    const currentQuantityApply = {
+      id: record._id,
+      selectCompany: company,
+      selectQuantityType: quantityType,
+      applyNumber: record.applyNumber,
+      mayNumber: mayNumber
+    }
     dispatch({
       type: 'quantityApply/showUpdateForm',
-      payload: record
+      payload: currentQuantityApply
     });
+  }
+
+  const deleteQuantityApply = (record)=>{
+    dispatch({
+      type:'quantityApply/deleteQuantityApply',
+      payload:record._id
+    })
+  }
+
+  const searchQuantityApply = (event)=>{
+    console.log(event.target.value);
   }
 
   return (
@@ -78,7 +106,7 @@ const QuantityApply = ({ dispatch, quantityApply, loading }) => {
       <Card style={{ margin: "24px 24px 0" }}>
         <div>
           <Button type="primary" onClick={showAddForm}><Icon type="plus" />新增</Button>
-          <Search placeholder="请输入" style={{ width: 240, float: "right" }} />
+          <Search placeholder="请输入单位名称" onPressEnter={searchQuantityApply} style={{ width: 240, float: "right" }} />
         </div>
         <Table
           columns={columns}

@@ -15,13 +15,14 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
   const { getFieldDecorator, validateFields, resetFields } = form;
 
   const formSubmit = () => {
-    validateFields((err, values) => {
+    validateFields({ force: true }, (err, values) => {
       if (err) return;
       if (formModify) {
+        values._id = currentQuantityApply.id;
         dispatch({
           type: 'quantityApply/updateQuantityApply',
           payload: values
-        })
+        });
       } else {
         dispatch({
           type: 'quantityApply/addQuantityApply',
@@ -40,43 +41,39 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
   }
 
   const onSelectCompany = (key) => {
-    let currObj = { ...currentQuantityApply } || {};
-    const company = companys.find(company => {
+    const selectCompany = companys.find(company => {
       return company._id == key;
     });
-    if (currObj.quantityType) {
-      const quantityType = currObj.quantityType;
-      const infactProp = getQuantityInfactProp(quantityType);
-      const applyProp = getQuantityApplyProp(quantityType);
-      const mayNumber = company[quantityType] - company[infactProp] - company[applyProp];
-      currObj = { ...currObj, company, mayNumber };
-    } else {
-      currObj = { ...currObj, company };
-    }
     dispatch({
       type: 'quantityApply/updateCurrQuantityApply',
-      payload: currObj
+      payload: { ...currentQuantityApply, selectCompany }
     })
   };
 
   const onSelectQuantityType = (quantityType) => {
-    let currObj = { ...f } || {};
-    currObj.quantityType = quantityType;
-    if (currObj.company) {
-      const infactProp = getQuantityInfactProp(quantityType);
-      const applyProp = getQuantityApplyProp(quantityType);
-      const mayNumber = currObj.company[quantityType] - currObj.company[infactProp] - currObj.company[applyProp];
-      currObj.mayNumber = mayNumber;
-    }
     dispatch({
       type: 'quantityApply/updateCurrQuantityApply',
-      payload: currObj
+      payload: { ...currentQuantityApply, selectQuantityType: quantityType }
+    });
+  }
+
+  const onInputApplyNumber = (event) => {
+    const applyNumber = event.target.value;
+    dispatch({
+      type: 'quantityApply/updateCurrQuantityApply',
+      payload: { ...currentQuantityApply, applyNumber }
     });
   }
 
   const getMayNumber = () => {
-    const { _id,quantityType } = currentQuantityApply;
-    
+    const company = currentQuantityApply.selectCompany;
+    const quantityType = currentQuantityApply.selectQuantityType;
+    if (company && quantityType) {
+      const infactProp = getQuantityInfactProp(quantityType);
+      const applyProp = getQuantityApplyProp(quantityType);
+      return company[quantityType] - company[infactProp] - company[applyProp];
+    }
+    return "";
   }
 
   return (
@@ -90,7 +87,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
         <FormItem {...formItemLayout} label="单位名称">
           {
             getFieldDecorator('company', {
-              initialValue: formModify ? currentQuantityApply.company._id : "",
+              initialValue: formModify ? currentQuantityApply.selectCompany._id : "",
               rules: [{
                 required: true,
                 message: "请选择单位"
@@ -109,7 +106,7 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
         <FormItem {...formItemLayout} label="编制类型">
           {
             getFieldDecorator('quantityType', {
-              initialValue: formModify ? currentQuantityApply.quantityType : "",
+              initialValue: formModify ? currentQuantityApply.selectQuantityType : "",
               rules: [{
                 required: true,
                 message: '请选择编制类型'
@@ -141,8 +138,8 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                 },
                 {
                   validator: (rule, value, callback) => {
-                    if (currentQuantityApply && currentQuantityApply.mayNumber) {
-                      if (parseInt(value) > currentQuantityApply.mayNumber) {
+                    if (currentQuantityApply.selectCompany && currentQuantityApply.selectQuantityType) {
+                      if (parseInt(value) > getMayNumber()) {
                         callback("不能大于可使用编制数");
                       }
                     }
@@ -151,13 +148,13 @@ const QuantityApplyForm = ({ dispatch, quantityApply, form }) => {
                 }
               ]
             })(
-              <Input style={{ width: 100 }} />
+              <Input style={{ width: 100 }} onBlur={onInputApplyNumber} />
               )
           }
         </FormItem>
         <FormItem label="可用编制数:" {...formItemLayout}>
           <span style={{ fontWeight: 400 }}>
-            {formModify && getMayNumber()}
+            {currentQuantityApply.selectCompany && currentQuantityApply.selectQuantityType && getMayNumber()}
           </span>
         </FormItem>
 

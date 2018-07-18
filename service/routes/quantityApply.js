@@ -39,7 +39,7 @@ router.post('/', function (req, res, next) {
       Company.findOne({ _id: companyId }, function (err, company) {
         if (err) return res.send({ success: false });
         const quantityApplyProp = getQuantityApplyProp(values.quantityType);
-        company[quantityApplyProp] = company[quantityApplyProp] + values.applyNumber;
+        company[quantityApplyProp] = parseInt(company[quantityApplyProp]) + parseInt(values.applyNumber);
         company.save();
         return res.send({
           success: true,
@@ -51,13 +51,34 @@ router.post('/', function (req, res, next) {
 
 router.put('/', function (req, res, next) {
   let quantityApply = req.body;
+  const companyId = quantityApply.company;
   quantityApply.company = new mongoose.Types.ObjectId(quantityApply.company);
   quantityApply.quantityName = getQuantityName(quantityApply.quantityType);
-  QuantityApply.update({ _id: quantityApply }, quantityApply, function (err, doc) {
+  QuantityApply.update({ _id: quantityApply._id }, quantityApply, function (err, doc) {
     if (err) return res.send({ success: false });
-    return res.send({
-      success: true,
-      data: doc
+    Company.findOne({ _id: companyId }, function (err, company) {
+      if (err) return res.send({ success: false });
+      let applyProp = getQuantityApplyProp(quantityApply.quantityType);
+      company[applyProp] = parseInt(quantityApply.applyNumber);
+      company.save();
+      return res.send({
+        success: true,
+        data: doc
+      })
+    })
+  })
+});
+
+router.delete('/:id', function (req, res, next) {
+  const id = req.params.id;
+  QuantityApply.findOneAndRemove({ _id: id }, function (err, doc) {
+    if (err) return res.send({ success: false });
+    Company.findOne({ _id: doc.company }, function (err, company) {
+      if (err) return res.send({ success: false });
+      const applyProp = getQuantityApplyProp(doc.quantityType);
+      company[applyProp] = company[applyProp] - doc.applyNumber;
+      company.save();
+      return res.send({ success: true, data: doc });
     })
   })
 })

@@ -1,5 +1,14 @@
 import request from '../utils/request';
 import { message } from 'antd';
+
+const defalutCurrent = {
+  id: "",
+  selectCompany: null,
+  selectQuantityType: "",
+  applyNumber: 0,
+  mayNumber: 0
+}
+
 export default {
   namespace: 'quantityApply',
 
@@ -7,7 +16,7 @@ export default {
     quantityApplys: [],
     formVisible: false,
     formModify: false,
-    currentQuantityApply: null,
+    currentQuantityApply: defalutCurrent,
     companys: [],
   },
 
@@ -25,7 +34,7 @@ export default {
 
   effects: {
     *reloadState(action, { put, call }) {
-      yield put({ type: 'initSate' });
+      yield put({ type: 'initState' });
       yield put({ type: 'getQuantityApplys' });
       yield put({ type: 'getCompanys' });
     },
@@ -49,6 +58,7 @@ export default {
         message.info('新增用编申请失败');
       } else {
         yield put({ type: 'hideForm' });
+        yield put({ type: 'getCompanys' });
         yield put({ type: 'getQuantityApplys' });
       }
     },
@@ -58,7 +68,32 @@ export default {
         method: 'PUT',
         body: values
       });
+      if (!res.success) {
+        message.info("更新失败");
+      } else {
+        yield put({ type: 'hideForm' });
+        yield put({ type: 'getCompanys' });
+        yield put({ type: 'getQuantityApplys' });
+      }
+    },
 
+    *deleteQuantityApply({ payload: id }, { put, call }) {
+      let res = yield call(request, `/api/quantityapply/${id}`, {
+        method: 'DELETE'
+      });
+      res = JSON.parse(res);
+      if (!res.success) {
+        message.info('删除失败');
+      } else {
+        yield put({ type: 'getCompanys' });
+        yield put({ type: 'getQuantityApplys' });
+      }
+    },
+
+    *searchQuantityApply({ payload: value }, { put, call }) {
+      const res = yield call(request, `/api/quantityapply/?companyName=${value}`, {
+        method: 'GET'
+      })
     },
 
     *getCompanys(action, { put, call }) {
@@ -79,12 +114,12 @@ export default {
         formVisible: false,
         formModify: false,
         companys: [],
-        currentQuantityApply: null,
+        currentQuantityApply: defalutCurrent,
       }
     },
 
     showAddForm(state, action) {
-      return { ...state, formVisible: true, formModify: false, currentQuantityApply: null }
+      return { ...state, formVisible: true, formModify: false, currentQuantityApply: defalutCurrent }
     },
 
     showUpdateForm(state, { payload: currentQuantityApply }) {
@@ -92,7 +127,7 @@ export default {
     },
 
     hideForm(state, action) {
-      return { ...state, formVisible: false, formModify: false, currentQuantityApply: null }
+      return { ...state, formVisible: false, formModify: false, currentQuantityApply: defalutCurrent }
     },
 
     setQuantityApplys(state, { payload: quantityApplys }) {

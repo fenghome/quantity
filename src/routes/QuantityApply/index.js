@@ -48,7 +48,7 @@ const QuantityApply = ({ dispatch, quantityApply, loading }) => {
         <div style={{ textAlign: "center" }}>
           <a onClick={() => showUpdateForm(record)}>编辑</a>
           <Divider type="vertical" />
-          <Popconfirm title="确定要删除此条信心吗?" onConfirm={()=> deleteQuantityApply(record)}  okText="是" cancelText="否">
+          <Popconfirm title="确定要删除此条信心吗?" onConfirm={() => deleteQuantityApply(record)} okText="是" cancelText="否">
             <a href="#">删除</a>
           </Popconfirm>,
         </div>
@@ -89,15 +89,18 @@ const QuantityApply = ({ dispatch, quantityApply, loading }) => {
     });
   }
 
-  const deleteQuantityApply = (record)=>{
+  const deleteQuantityApply = (record) => {
     dispatch({
-      type:'quantityApply/deleteQuantityApply',
-      payload:record._id
+      type: 'quantityApply/deleteQuantityApply',
+      payload: record._id
     })
   }
 
-  const searchQuantityApply = (event)=>{
-    console.log(event.target.value);
+  const searchQuantityApply = (event) => {
+    dispatch({
+      type: 'quantityApply/searchQuantityApply',
+      payload: event.target.value
+    })
   }
 
   return (

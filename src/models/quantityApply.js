@@ -93,7 +93,11 @@ export default {
     *searchQuantityApply({ payload: value }, { put, call }) {
       const res = yield call(request, `/api/quantityapply/?companyName=${value}`, {
         method: 'GET'
-      })
+      });
+      yield put({
+        type: 'setQuantityApplys',
+        payload: res.data || []
+      });
     },
 
     *getCompanys(action, { put, call }) {

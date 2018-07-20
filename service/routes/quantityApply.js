@@ -6,17 +6,36 @@ const { getQuantityName, getQuantityApplyProp } = require('../utils/utils');
 const router = express.Router();
 
 router.get('/', function (req, res, next) {
-  QuantityApply
-    .find()
-    .populate('company', 'companyName')
-    .sort({ _id: -1 })
-    .exec(function (err, quantityApplys) {
+  if (req.query.companyName) {
+    Company.find({ companyName: new RegExp(req.query.companyName) }, function (err, companys) {
       if (err) return res.send({ success: false });
-      return res.send({
-        success: true,
-        data: quantityApplys
-      })
+      const companyIds = companys.map(company => {
+        return company._id;
+      });
+      QuantityApply.find({ company: { $in: companyIds } })
+        .populate('company', 'companyName')
+        .sort({ _id: -1 })
+        .exec(function (err, quantityApplys) {
+          if (err) return res.send({ success: false });
+          return res.send({
+            success: true,
+            data: quantityApplys
+          })
+        })
     })
+  } else {
+    QuantityApply
+      .find()
+      .populate('company', 'companyName')
+      .sort({ _id: -1 })
+      .exec(function (err, quantityApplys) {
+        if (err) return res.send({ success: false });
+        return res.send({
+          success: true,
+          data: quantityApplys
+        })
+      })
+  }
 });
 
 router.post('/', function (req, res, next) {

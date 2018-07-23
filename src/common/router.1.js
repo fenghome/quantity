@@ -76,15 +76,7 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['quantityApply'], () => import('../routes/QuantityApply')),
     },
     '/quantity': {
-      component: dynamicWrapper(app, [], () => import('../routes/Quantity/')),
-    },
-    '/quantity/list':{
-      name:'列表',
-      component: dynamicWrapper(app, [], () => import('../routes/Quantity/QuantityList')),
-    },
-    '/quantity/add':{
-      name:'新增列表卡',
-      component: dynamicWrapper(app, [], () => import('../routes/Quantity/AddQuantityForm')),
+      component: dynamicWrapper(app, [], () => import('../routes/Quantity')),
     },
     '/company': {
       component: dynamicWrapper(app, ['company'], () => import('../routes/Company')),

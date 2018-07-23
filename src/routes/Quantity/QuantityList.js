@@ -1,14 +1,14 @@
 import React from 'react';
 import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider, Select } from 'antd';
-import { Switch, Route, Redirect } from 'dva/router';
-import QuantityLayout from './QuantityLayout';
+import { Switch, Route } from 'dva/router';
+import PageHeader from '../../components/PageHeader';
 import styles from './index.less';
 import { getRoutes } from '../../utils/utils';
 const FormItem = Form.Item;
 const InputGroup = Input.Group;
 const Search = Input.Search;
 
-const Quantity = ({ form, match, routerData, location }) => {
+const QuantityList = ({ form, match, routerData }) => {
 
   const columns = [
     {
@@ -224,27 +224,23 @@ const Quantity = ({ form, match, routerData, location }) => {
 
   return (
 
-    <Switch>
-      {
-        getRoutes(match.path, routerData).map(item => {
-          const currCom = routerData[item.path].component;
-          return
-          <Route
-            key={item.key}
-            path={item.path}
-            render={
-              props => <QuantityLayout comp={currCom} {...props} />
-            }
-            exact={item.exact}
-          />
-
-        })
-      }
-      <Redirect exact from="/quantity/" to="/quantity/list" />
-
-    </Switch>
+    <Card style={{ margin: "24px 24px 0" }}>
+      <InputGroup compact style={{ float: "right", width: 340 }}>
+        <Select style={{ width: "30%" }}>
+          <Option key="quantityID">列编卡号</Option>
+          <Option key="name">姓名</Option>
+          <Option key="IDCard">身份证号</Option>
+          <Option key="quantityType">编制类型</Option>
+          <Option key="inCompany">调入单位</Option>
+          <Option key="outCompany">调入单位</Option>
+        </Select>
+        <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
+      </InputGroup>
+      <Button type="primary"><Icon type="plus" />新增</Button>
+      <Table columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
+    </Card>
 
   )
 }
 
-export default Form.create()(Quantity);
+export default Form.create()(QuantityList);

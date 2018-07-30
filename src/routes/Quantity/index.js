@@ -3,7 +3,6 @@ import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider, Select } fro
 import { Switch, Route, Redirect, Link } from 'dva/router';
 import styles from './index.less';
 import { getRoutes } from '../../utils/utils';
-import QuantityLayout from './QuantityLayout';
 import PageHeader from '../../components/PageHeader';
 
 const FormItem = Form.Item;

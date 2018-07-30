@@ -32,7 +32,9 @@ export default {
       const res = yield call(request, `/api/quantity`, {
         method: 'GET'
       });
-      yield put({ type: 'setQuantitys', payload: res.data })
+      if(res && res.success){
+        yield put({ type: 'setQuantitys', payload: res.data || [] });
+      }
     },
 
     *getCompanys(action, { put, call }) {

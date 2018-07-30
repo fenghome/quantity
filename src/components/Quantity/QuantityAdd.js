@@ -7,8 +7,8 @@ import styles from './QuantityAdd.less';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-const QuantityAdd = ({ quantity, form }) => {
-  const { companys = [] } = quantity;
+const QuantityAdd = ({ quantity, form, dispatch }) => {
+  const { companys = [], currQuantity } = quantity;
   const { getFieldDecorator, validateFields } = form;
   const dataSource = [
     {
@@ -28,7 +28,7 @@ const QuantityAdd = ({ quantity, form }) => {
       title: <div style={{ textAlign: "center" }}>调出单位</div>,
       dataIndex: 'outCompany',
       width: 260,
-      render: () => (
+      render: (text, record, index) => (
         <FormItem>
           {
             getFieldDecorator('outCompany', {
@@ -45,6 +45,9 @@ const QuantityAdd = ({ quantity, form }) => {
                 mode="combobox"
                 optionFilterProp="children"
                 optionLabelProp="children"
+                onSelect={(value) => {
+                  updateCurrQuantity({ outCompany: value }, index)
+                }}
               >
                 {
                   companys.map(item => (
@@ -62,7 +65,7 @@ const QuantityAdd = ({ quantity, form }) => {
       title: <div style={{ textAlign: "center" }}>调入单位</div>,
       dataIndex: 'inCompany',
       width: 260,
-      render: () => (
+      render: (text, record, index) => (
         <FormItem>
           {
             getFieldDecorator('inCompany', {
@@ -79,6 +82,9 @@ const QuantityAdd = ({ quantity, form }) => {
                 mode="combobox"
                 optionFilterProp="children"
                 optionLabelProp="children"
+                onSelect={(value) => {
+                  updateCurrQuantity({ inCompany: value }, index)
+                }}
               >
                 {
                   companys.map(item => (
@@ -96,7 +102,7 @@ const QuantityAdd = ({ quantity, form }) => {
       title: <div style={{ textAlign: "center" }}>姓名</div>,
       dataIndex: 'name',
       width: 160,
-      render: () => (
+      render: (text, record, index) => (
         <FormItem>
           {
             getFieldDecorator('name', {
@@ -107,7 +113,9 @@ const QuantityAdd = ({ quantity, form }) => {
                 }
               ]
             })(
-              <Input />
+              <Input onBlur={(e) => {
+                updateCurrQuantity({ name: e.target.value }, index)
+              }} />
               )
           }
         </FormItem>
@@ -118,7 +126,7 @@ const QuantityAdd = ({ quantity, form }) => {
       title: <div style={{ textAlign: "center" }}>身份证号</div>,
       dataIndex: 'IDCard',
       width: 200,
-      render: () => (
+      render: (text, record, index) => (
         <FormItem>
           {
             getFieldDecorator('IDCard', {
@@ -139,7 +147,7 @@ const QuantityAdd = ({ quantity, form }) => {
                 }
               ]
             })(
-              <Input />
+              <Input onBlur={(e) => { updateCurrQuantity({ IDCard: e.target.value }, index) }} />
               )
           }
         </FormItem>
@@ -150,7 +158,7 @@ const QuantityAdd = ({ quantity, form }) => {
       title: <div style={{ textAlign: "center" }}>编制性质</div>,
       dataIndex: 'quantityName',
       width: 170,
-      render: () => (
+      render: (text, record, index) => (
         <FormItem>
           {
             getFieldDecorator('quantityName', {
@@ -161,7 +169,12 @@ const QuantityAdd = ({ quantity, form }) => {
                 }
               ]
             })(
-              <Select style={{ width: "100%" }}>
+              <Select
+                style={{ width: "100%" }}
+                onSelect={
+                  (value) => updateCurrQuantity({ quantityName: value }, index)
+                }
+              >
                 <Option value="quantityXZ">行政</Option>
                 <Option value="quantityZF">政法</Option>
                 <Option value="quantityGQ">工勤</Option>
@@ -193,10 +206,19 @@ const QuantityAdd = ({ quantity, form }) => {
     })
   }
 
+  const updateCurrQuantity = (obj, index) => {
+    let currObj = [...currQuantity];
+    currObj[index] = { ...currQuantity[index], ...obj };
+    dispatch({
+      type: 'quantity/updateCurrQuantity',
+      payload: currObj
+    })
+  }
+
   return (
     <Card style={{ margin: "24px 24px 0" }}>
       <Form className={styles.addForm}>
-        <Table rowKey={record => record.outCompany} columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
+        <Table rowKey="quantityId" columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
       </Form>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <Button type="primary" style={{ marginRight: 40 }} onClick={addQuantity}>确定</Button>

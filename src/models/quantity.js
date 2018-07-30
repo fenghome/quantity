@@ -6,7 +6,7 @@ export default {
   state: {
     quantitys: [],
     companys: [],
-    currquantity: [],
+    currQuantity: [{}],
 
   },
 
@@ -32,7 +32,7 @@ export default {
       const res = yield call(request, `/api/quantity`, {
         method: 'GET'
       });
-      if(res && res.success){
+      if (res && res.success) {
         yield put({ type: 'setQuantitys', payload: res.data || [] });
       }
     },
@@ -52,6 +52,11 @@ export default {
 
     setCompanys(state, { payload: companys }) {
       return { ...state, companys }
+    },
+
+    updateCurrQuantity(state, { payload: currQuantity }) {
+      console.log('curr',currQuantity);
+      return { ...state, currQuantity }
     }
   }
 }

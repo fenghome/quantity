@@ -239,7 +239,7 @@ const QuantityList = ({ form, match, routerData,dispatch }) => {
         <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
       </InputGroup>
       <Button type="primary" onClick={onAddQuantity}><Icon type="plus" />新增</Button>
-      <Table columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
+      <Table rowKey="quantityId" columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
     </Card>
 
   )

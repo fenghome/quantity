@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var company = require('./routes/company');
 var employee = require('./routes/employee');
 var quantityApply = require('./routes/quantityApply');
+var quantity = require('./routes/quantity');
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/quantityDb');
@@ -33,6 +34,7 @@ app.use('/company',company);
 app.use('/users', users);
 app.use('/employee',employee);
 app.use('/quantityapply',quantityApply);
+app.use('/quantity',quantity);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

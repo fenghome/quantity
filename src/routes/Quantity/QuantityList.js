@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider, Select } from 'antd';
-import { Switch, Route } from 'dva/router';
+import { Switch, Route, routerRedux } from 'dva/router';
+import { connect } from 'dva';
 import PageHeader from '../../components/PageHeader';
 import styles from './index.less';
 import { getRoutes } from '../../utils/utils';
@@ -8,7 +9,7 @@ const FormItem = Form.Item;
 const InputGroup = Input.Group;
 const Search = Input.Search;
 
-const QuantityList = ({ form, match, routerData }) => {
+const QuantityList = ({ form, match, routerData,dispatch }) => {
 
   const columns = [
     {
@@ -222,6 +223,10 @@ const QuantityList = ({ form, match, routerData }) => {
     </Form>
   )
 
+  const onAddQuantity = ()=>{
+    dispatch(routerRedux.push('/quantity/add'));
+  }
+
   return (
 
     <Card style={{ margin: "24px 24px 0" }}>
@@ -236,11 +241,11 @@ const QuantityList = ({ form, match, routerData }) => {
         </Select>
         <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
       </InputGroup>
-      <Button type="primary"><Icon type="plus" />新增</Button>
+      <Button type="primary" onClick={onAddQuantity}><Icon type="plus" />新增</Button>
       <Table columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
     </Card>
 
   )
 }
 
-export default Form.create()(QuantityList);
+export default connect()(Form.create()(QuantityList));

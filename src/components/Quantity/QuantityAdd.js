@@ -8,19 +8,8 @@ const Option = Select.Option;
 const FormItem = Form.Item;
 
 const QuantityAdd = ({ quantity, form, dispatch }) => {
-  const { companys = [], currQuantity } = quantity;
+  const { companys = [], currQuantity = [{ key: 0 }] } = quantity;
   const { getFieldDecorator, validateFields } = form;
-  const dataSource = [
-    {
-      key: '001',
-      quantityId: '001',
-      name: '张三',
-      IDCard: '13010519790402112',
-      quantityType: '行政',
-      inCompany: '机构编制委员会办公室机构编制委员会办公室机构编制委员会办公室',
-      outCompany: '人社局'
-    }
-  ]
 
   const columns = [
     {
@@ -31,7 +20,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator('outCompany', {
+            getFieldDecorator(`outCompany${index}`, {
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -50,8 +40,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 }}
               >
                 {
+                  console.log(companys)
+                }{
                   companys.map(item => (
-                    <Option value={item._id}>{item.companyName}</Option>
+                    <Option key={item._id}>{item.companyName}</Option>
                   ))
                 }
               </Select>
@@ -68,7 +60,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator('inCompany', {
+            getFieldDecorator(`inCompany${index}`, {
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -88,7 +81,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
               >
                 {
                   companys.map(item => (
-                    <Option value={item._id}>{item.companyName}</Option>
+                    <Option key={item._id}>{item.companyName}</Option>
                   ))
                 }
               </Select>
@@ -105,7 +98,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator('name', {
+            getFieldDecorator(`name${index}`, {
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -129,7 +123,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator('IDCard', {
+            getFieldDecorator(`IDCard${index}`, {
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -154,14 +149,15 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       )
     },
     {
-      key: 'quantityName',
+      key: 'quantityType',
       title: <div style={{ textAlign: "center" }}>编制性质</div>,
       dataIndex: 'quantityName',
       width: 170,
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator('quantityName', {
+            getFieldDecorator(`quantityType${index}`, {
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -172,15 +168,15 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
               <Select
                 style={{ width: "100%" }}
                 onSelect={
-                  (value) => updateCurrQuantity({ quantityName: value }, index)
+                  (value) => updateCurrQuantity({ quantityType: value }, index)
                 }
               >
-                <Option value="quantityXZ">行政</Option>
-                <Option value="quantityZF">政法</Option>
-                <Option value="quantityGQ">工勤</Option>
-                <Option value="quantityQE">全额拨款事业</Option>
-                <Option value="quantityCE">差额拨款事业</Option>
-                <Option value="quantityZS">自收自支事业</Option>
+                <Option key="quantityXZ">行政</Option>
+                <Option key="quantityZF">政法</Option>
+                <Option key="quantityGQ">工勤</Option>
+                <Option key="quantityQE">全额拨款事业</Option>
+                <Option key="quantityCE">差额拨款事业</Option>
+                <Option key="quantityZS">自收自支事业</Option>
               </Select>
               )
           }
@@ -190,15 +186,21 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     {
       key: 'option',
       title: <div style={{ textAlign: "center" }}>操作</div>,
-      render: () => (
+      render: (text,record,index) => (
         <div style={{ textAlign: "center" }}>
-          <a>新增</a>
+          <a onClick={()=>addCurrQuantity(index)}>新增</a>
           <Divider type="vertical" />
           <a>删除</a>
         </div>
       )
     }
   ];
+
+  const addCurrQuantity = ()=>{
+    dispatch({
+
+    })
+  }
 
   const addQuantity = () => {
     validateFields((err, values) => {
@@ -218,7 +220,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   return (
     <Card style={{ margin: "24px 24px 0" }}>
       <Form className={styles.addForm}>
-        <Table rowKey="quantityId" columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
+        <Table rowKey={record => record.key} columns={columns} dataSource={currQuantity} style={{ marginTop: 24 }} bordered />
       </Form>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <Button type="primary" style={{ marginRight: 40 }} onClick={addQuantity}>确定</Button>

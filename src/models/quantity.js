@@ -6,7 +6,16 @@ export default {
   state: {
     quantitys: [],
     companys: [],
-    currQuantity: [{}],
+    currQuantity: [
+      {
+        key:0,
+        outCompany:'',
+        inCompany:'',
+        name:'',
+        IDCard:'',
+        quantityType:'',
+      }
+    ]
 
   },
 
@@ -55,7 +64,7 @@ export default {
     },
 
     updateCurrQuantity(state, { payload: currQuantity }) {
-      console.log('curr',currQuantity);
+      console.log('curr', currQuantity);
       return { ...state, currQuantity }
     }
   }

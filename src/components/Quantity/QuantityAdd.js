@@ -3,6 +3,7 @@ import { Form, Card, Table, Button, Divider, Select, Input } from 'antd';
 import { connect } from 'dva';
 import { IdCodeValid } from '../../utils/utils';
 import styles from './QuantityAdd.less';
+import index from '../../../node_modules/_antd@3.6.5@antd/lib/upload';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -40,7 +41,6 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 }}
               >
                 {
-                  console.log(companys)
                 }{
                   companys.map(item => (
                     <Option key={item._id}>{item.companyName}</Option>
@@ -186,19 +186,39 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     {
       key: 'option',
       title: <div style={{ textAlign: "center" }}>操作</div>,
-      render: (text,record,index) => (
+      render: (text, record, index) => (
         <div style={{ textAlign: "center" }}>
-          <a onClick={()=>addCurrQuantity(index)}>新增</a>
+          <a onClick={() => addCurrQuantity(index)}>新增</a>
           <Divider type="vertical" />
-          <a>删除</a>
+          <a onClick={() => dellCurrQuantity(index)}>删除</a>
         </div>
       )
     }
   ];
 
-  const addCurrQuantity = ()=>{
+  const addCurrQuantity = (index) => {
+    let currObj = [...currQuantity];
+    currObj.splice(index + 1, 0, {});
+    currObj = currObj.map((item,i)=>{
+      item.key = i;
+      return item;
+    })
     dispatch({
+      type: 'quantity/updateCurrQuantity',
+      payload: currObj
+    })
+  }
 
+  const dellCurrQuantity = (index) => {
+    let currObj = [...currQuantity];
+    currObj.splice(index, 1);
+    currObj = currObj.map((item,i)=>{
+      item.key = i;
+      return item;
+    })
+    dispatch({
+      type: 'quantity/updateCurrQuantity',
+      payload: currObj
     })
   }
 
@@ -220,7 +240,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   return (
     <Card style={{ margin: "24px 24px 0" }}>
       <Form className={styles.addForm}>
-        <Table rowKey={record => record.key} columns={columns} dataSource={currQuantity} style={{ marginTop: 24 }} bordered />
+        <Table rowKey="key" columns={columns} dataSource={currQuantity} style={{ marginTop: 24 }} bordered />
       </Form>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <Button type="primary" style={{ marginRight: 40 }} onClick={addQuantity}>确定</Button>

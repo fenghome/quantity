@@ -6,8 +6,9 @@ const FormItem = Form.Item;
 const InputGroup = Input.Group;
 const Search = Input.Search;
 
-const QuantityList = ({ form, match, routerData,dispatch }) => {
+const QuantityList = ({ form, match, routerData, dispatch, quantity }) => {
 
+  const { quantitys } = quantity;
   const columns = [
     {
       title: <div style={{ textAlign: "center" }}>列编卡号</div>,
@@ -220,7 +221,14 @@ const QuantityList = ({ form, match, routerData,dispatch }) => {
     </Form>
   )
 
-  const onAddQuantity = ()=>{
+  const onAddQuantity = () => {
+    const myDate = new Date();
+    const year = myDate.getFullYear();
+    const quantityId = `Q${year}` + `0000${quantitys.length + 1}`.slice(-4);
+    dispatch({
+      type:'quantity/setCurrQuantityId',
+      payload:quantityId
+    })
     dispatch(routerRedux.push('/quantity/add'));
   }
 
@@ -245,4 +253,8 @@ const QuantityList = ({ form, match, routerData,dispatch }) => {
   )
 }
 
-export default connect()(Form.create()(QuantityList));
+function mapStateToProps(state) {
+  return { quantity: state.quantity }
+}
+
+export default connect(mapStateToProps)(Form.create()(QuantityList));

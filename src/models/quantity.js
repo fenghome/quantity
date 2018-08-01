@@ -6,17 +6,18 @@ export default {
   state: {
     quantitys: [],
     companys: [],
+    currQuantityId: '',
     currQuantity: [
       {
-        key:0,
-        outCompany:'',
-        inCompany:'',
-        name:'',
-        IDCard:'',
-        quantityType:'',
+        key: 0,
+        outCompany: '东方闪电',
+        inCompany: '东南西',
+        name: '',
+        IDCard: '',
+        quantityType: '',
+        employees:[],
       }
-    ]
-
+    ],
   },
 
   subscriptions: {
@@ -37,7 +38,7 @@ export default {
       yield put({ type: 'getCompanys' });
     },
 
-    *getQuantitys(actiion, { put, call }) {
+    *getQuantitys(action, { put, call }) {
       const res = yield call(request, `/api/quantity`, {
         method: 'GET'
       });
@@ -46,11 +47,30 @@ export default {
       }
     },
 
+    *addQuantity({ payload: currQuantity }, { put, call }) {
+      const res = yield call(request, `/api/quantity`, {
+        method: 'POST',
+        body: currQuantity
+      })
+    },
+
     *getCompanys(action, { put, call }) {
       const res = yield call(request, `/api/company`, {
         meithod: 'GET'
       });
       yield put({ type: 'setCompanys', payload: res.data });
+    },
+
+    *getCurrEmployees({ payload: companyName }, { put, call }) {
+      const res = yield call(request, `/api/employees/?companyName=${companyName}`, {
+        method: 'GET'
+      });
+      if (res.success) {
+        yield put({
+          type: 'setCurrEmployees',
+          payload: res.data || []
+        })
+      }
     }
   },
 
@@ -63,9 +83,17 @@ export default {
       return { ...state, companys }
     },
 
+    setCurrQuantityId(state, { payload: currQuantityId }) {
+      return { ...state, currQuantityId }
+    },
+
     updateCurrQuantity(state, { payload: currQuantity }) {
       console.log('curr', currQuantity);
       return { ...state, currQuantity }
+    },
+
+    setCurrEmployees(state, { payload: currEmployees }) {
+      return { ...state, currEmployees }
     }
   }
 }

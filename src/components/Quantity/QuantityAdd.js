@@ -3,13 +3,12 @@ import { Form, Card, Table, Button, Divider, Select, Input } from 'antd';
 import { connect } from 'dva';
 import { IdCodeValid } from '../../utils/utils';
 import styles from './QuantityAdd.less';
-import index from '../../../node_modules/_antd@3.6.5@antd/lib/upload';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
 const QuantityAdd = ({ quantity, form, dispatch }) => {
-  const { companys = [], currQuantity = [{ key: 0 }] } = quantity;
+  const { companys = [], currQuantity = [{ key: 0 }], currQuantityId } = quantity;
   const { getFieldDecorator, validateFields } = form;
 
   const columns = [
@@ -36,14 +35,13 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 mode="combobox"
                 optionFilterProp="children"
                 optionLabelProp="children"
-                onSelect={(value) => {
+                onBlur={(value) => {
                   updateCurrQuantity({ outCompany: value }, index)
                 }}
               >
-                {
-                }{
+               {
                   companys.map(item => (
-                    <Option key={item._id}>{item.companyName}</Option>
+                    <Option key={item.companyName}>{item.companyName}</Option>
                   ))
                 }
               </Select>
@@ -75,13 +73,13 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 mode="combobox"
                 optionFilterProp="children"
                 optionLabelProp="children"
-                onSelect={(value) => {
+                onBlur={(value) => {
                   updateCurrQuantity({ inCompany: value }, index)
                 }}
               >
                 {
                   companys.map(item => (
-                    <Option key={item._id}>{item.companyName}</Option>
+                    <Option key={item.companyName}>{item.companyName}</Option>
                   ))
                 }
               </Select>
@@ -199,7 +197,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   const addCurrQuantity = (index) => {
     let currObj = [...currQuantity];
     currObj.splice(index + 1, 0, {});
-    currObj = currObj.map((item,i)=>{
+    currObj = currObj.map((item, i) => {
       item.key = i;
       return item;
     })
@@ -212,7 +210,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   const dellCurrQuantity = (index) => {
     let currObj = [...currQuantity];
     currObj.splice(index, 1);
-    currObj = currObj.map((item,i)=>{
+    currObj = currObj.map((item, i) => {
       item.key = i;
       return item;
     })
@@ -224,7 +222,11 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
 
   const addQuantity = () => {
     validateFields((err, values) => {
-      console.log(values);
+      if (err) return;
+      dispatch({
+        type: 'quantity/addQuantity',
+        payload: {currQuantityId,  ...currQuantity }
+      })
     })
   }
 
@@ -234,7 +236,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj
-    })
+    });
   }
 
   return (

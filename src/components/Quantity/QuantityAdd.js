@@ -36,10 +36,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 optionFilterProp="children"
                 optionLabelProp="children"
                 onBlur={(value) => {
-                  updateCurrQuantity({ outCompany: value }, index)
+                  updateCurrEQ(value, index)
                 }}
               >
-               {
+                {
                   companys.map(item => (
                     <Option key={item.companyName}>{item.companyName}</Option>
                   ))
@@ -89,14 +89,14 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       )
     },
     {
-      key: 'name',
+      key: 'employeeId',
       title: <div style={{ textAlign: "center" }}>姓名</div>,
-      dataIndex: 'name',
+      dataIndex: 'employeeId',
       width: 160,
       render: (text, record, index) => (
         <FormItem>
           {
-            getFieldDecorator(`name${index}`, {
+            getFieldDecorator(`employeeId${index}`, {
               initialValue: text,
               rules: [
                 {
@@ -105,9 +105,20 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 }
               ]
             })(
-              <Input onBlur={(e) => {
-                updateCurrQuantity({ name: e.target.value }, index)
-              }} />
+              <Select
+                mode="combobox"
+                optionFilterProp="children"
+                optionLabelProp="children"
+                onBlur={value => {
+                  updateCurrQuantity({ employeeId: value }, index)
+                }}
+              >
+                {
+                  currQuantity[index].employees && currQuantity[index].employees.map(item => (
+                    <Option key={item._id}>{item.name}</Option>
+                  ))
+                }
+              </Select>
               )
           }
         </FormItem>
@@ -223,9 +234,13 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   const addQuantity = () => {
     validateFields((err, values) => {
       if (err) return;
+      let currObj = currQuantity.map(item => {
+        const { employees,...resObj  } = item;
+        return resObj;
+      });
       dispatch({
         type: 'quantity/addQuantity',
-        payload: {currQuantityId,  ...currQuantity }
+        payload: { currQuantityId, ...currObj }
       })
     })
   }
@@ -237,6 +252,13 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       type: 'quantity/updateCurrQuantity',
       payload: currObj
     });
+  }
+
+  const updateCurrEQ = (companyName, index) => {
+    dispatch({
+      type: 'quantity/updateCurrEQ',
+      payload: { companyName, index }
+    })
   }
 
   return (

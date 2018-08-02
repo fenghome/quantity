@@ -9,16 +9,16 @@ const Test = ({ form }) => {
   const onSelect = (value,option) => {
     console.log('aaaaa', value,option);
   }
-  const onBlur=(value,option)=>{
+  const onChange=(value,option)=>{
     console.log('bbb',value,option)
   }
   return (
     <Form layout="inline">
       <FormItem label="姓名">
         <Select
-          labelInValue={true}
-          onSelect={(value,option) => onSelect(value,option)}
-          onBlur={(value,option)=>onBlur(value,option)}
+          // labelInValue={true}
+          // onSelect={(value,option) => onSelect(value,option)}
+          onChange={(value,option)=>onChange(value,option)}
           style={{ width: 300 }}
           mode="combobox"
           optionFilterProp="children"

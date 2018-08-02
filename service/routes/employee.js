@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 const router = express.Router();
 
 router.get('/', function (req, res, next) {
+
   const filterProp = req.query.key;
   let filterValue = req.query.value;
-
   if (filterProp == "companyName") {
     Company.find({ companyName: new RegExp(filterValue) }, { _id: 1 }, function (err, companys) {
       if (err) return res.send({ success: false });

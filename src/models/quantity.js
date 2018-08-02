@@ -10,12 +10,12 @@ export default {
     currQuantity: [
       {
         key: 0,
-        outCompany: '东方闪电',
-        inCompany: '东南西',
-        name: '',
+        outCompany: '',
+        inCompany: '',
+        employeeId: '',
         IDCard: '',
         quantityType: '',
-        employees:[],
+        employees: [],
       }
     ],
   },
@@ -59,6 +59,23 @@ export default {
         meithod: 'GET'
       });
       yield put({ type: 'setCompanys', payload: res.data });
+    },
+
+    *updateCurrEQ({payload:{companyName,index}}, { put, call, select }) {
+
+      const res = yield call(request, `/api/employee/?key=companyName&&value=${companyName}`, {
+        method: 'GET'
+      });
+      const { currQuantity } = yield select(state => state.quantity);
+      let currObj = [...currQuantity];
+      if (res.success) {
+        currObj[index].employees = res.data;
+      }
+      currObj[index].outCompany = companyName;
+      yield put({
+        type:'updateCurrQuantity',
+        payload:currObj
+      })
     },
 
     *getCurrEmployees({ payload: companyName }, { put, call }) {

@@ -10,4 +10,4 @@ const quantitySchema = Schema({
   outCompany: { type: String }
 });
 
-module.exports = mongoose.model(quantitySchema,'Quantity');
+module.exports = mongoose.model('Quantity',quantitySchema);

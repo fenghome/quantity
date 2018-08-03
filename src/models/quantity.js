@@ -47,10 +47,11 @@ export default {
       }
     },
 
-    *addQuantity({ payload: currQuantity }, { put, call }) {
+    *addQuantity({ payload: addQuantity }, { put, call }) {
+      console.log(addQuantity);
       const res = yield call(request, `/api/quantity`, {
         method: 'POST',
-        body: currQuantity
+        body: addQuantity
       })
     },
 
@@ -105,7 +106,6 @@ export default {
     },
 
     updateCurrQuantity(state, { payload: currQuantity }) {
-      console.log('curr', currQuantity);
       return { ...state, currQuantity }
     },
 

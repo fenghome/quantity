@@ -240,7 +240,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       });
       dispatch({
         type: 'quantity/addQuantity',
-        payload: { currQuantityId, ...currObj }
+        payload: { quantityId:currQuantityId, quantityBody:currObj }
       })
     })
   }

@@ -59,7 +59,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         <FormItem>
           {
             getFieldDecorator(`inCompany${index}`, {
-              initialValue: text,
+              // initialValue: {key:record.inCompanyId,label:record.inCompanyName},
               rules: [
                 {
                   required: true,
@@ -71,15 +71,20 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
               <Select
                 style={{ width: "100%" }}
                 mode="combobox"
+                labelInValue={true}
                 optionFilterProp="children"
                 optionLabelProp="children"
                 onBlur={(value) => {
-                  updateCurrQuantity({ inCompany: value }, index)
+                  // updateCurrQuantity({ 
+                  //   inCompanyId: value.key,
+                  //   inCompanyName:value.label }, 
+                  // index)
+                  console.log(value);
                 }}
               >
                 {
                   companys.map(item => (
-                    <Option key={item.companyName}>{item.companyName}</Option>
+                    <Option key={item.companyId} value="dddd">{item.companyName}</Option>
                   ))
                 }
               </Select>

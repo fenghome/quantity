@@ -6,8 +6,8 @@ const Option = Select.Option;
 
 const Test = ({ form }) => {
   const { getFieldDecorator } = form;
-  const onSelect = (value,option) => {
-    console.log('aaaaa', value,option);
+  const onSelect = (value) => {
+    console.log('aaaaa', value);
   }
   const onChange=(value,option)=>{
     console.log('bbb',value,option)
@@ -15,17 +15,31 @@ const Test = ({ form }) => {
   return (
     <Form layout="inline">
       <FormItem label="姓名">
-        <Select
-          // labelInValue={true}
+      {
+        getFieldDecorator('name',{
+          initialValue:{key:'ccc',label:'aaaaa'},
+          rules:[
+            {
+              required: true,
+              message: '请选择内容',
+              trigger: "onBlur"
+            }
+          ]
+        })(
+          <Select
+          labelInValue={true}
           // onSelect={(value,option) => onSelect(value,option)}
-          onChange={(value,option)=>onChange(value,option)}
+          onBlur={(value)=>onSelect(value)}
           style={{ width: 300 }}
           mode="combobox"
           optionFilterProp="children"
           optionLabelProp="children"
         >
-          <Option value="a">aaaa</Option>
+          <Option value="ccc">aaaaa</Option>
         </Select>
+        )
+      }
+       
       </FormItem>
     </Form>
   )

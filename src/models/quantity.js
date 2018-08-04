@@ -11,7 +11,8 @@ export default {
       {
         key: 0,
         outCompany: '',
-        inCompany: '',
+        inCompanyId: '',
+        inCompanyName:'',
         employeeId: '',
         IDCard: '',
         quantityType: '',
@@ -106,6 +107,7 @@ export default {
     },
 
     updateCurrQuantity(state, { payload: currQuantity }) {
+      console.log('currQiamtoty',currQuantity);
       return { ...state, currQuantity }
     },
 

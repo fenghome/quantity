@@ -12,7 +12,6 @@ export default {
         key: 0,
         outCompany: '',
         inCompanyId: '',
-        inCompanyName:'',
         employeeId: '',
         IDCard: '',
         quantityType: '',

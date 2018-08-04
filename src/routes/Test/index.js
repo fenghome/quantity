@@ -17,29 +17,38 @@ const Test = ({ form }) => {
       <FormItem label="姓名">
       {
         getFieldDecorator('name',{
-          initialValue:{key:'ccc',label:'aaaaa'},
+          // initialValue:{key:'ccc',label:'aaaaa'},
           rules:[
+            // {
+            //   required: true,
+            //   message: '请选择内容',
+            //   trigger: "onSelect"
+            // },
             {
-              required: true,
-              message: '请选择内容',
-              trigger: "onBlur"
+              validator:(rule, value, callback)=>{
+                console.log('ccc',value);
+                if(!value.label.trim()) {
+                  return callback('择内容');
+                }
+                callback();
+              }
             }
           ]
         })(
           <Select
           labelInValue={true}
           // onSelect={(value,option) => onSelect(value,option)}
-          onBlur={(value)=>onSelect(value)}
+          onSelect={(value)=>onSelect(value)}
           style={{ width: 300 }}
           mode="combobox"
           optionFilterProp="children"
           optionLabelProp="children"
         >
-          <Option value="ccc">aaaaa</Option>
+          <Option key="1">aaaaa</Option>
         </Select>
         )
       }
-       
+
       </FormItem>
     </Form>
   )

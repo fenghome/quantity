@@ -6,7 +6,7 @@ const quantitySchema = Schema({
   employee: { type: Schema.Types.ObjectId, ref: "Employee" },
   quantityType: { type: String },
   quantityName: { type: String },
-  inCompanyName: { type: String },
+  inCompanyId: { type: String },
   outCompany: { type: String }
 });
 

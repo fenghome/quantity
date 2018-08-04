@@ -18,10 +18,10 @@ router.post('/', function (req, res) {
     return mongoose.Types.ObjectId(item.employeeId);
   })
   Employee.find({ _id: { $in: employeeIds } }, { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 }, function (err, doc) {
-    let companyNames = [];
+    let companyIds = [];
     let notInEmployees = quantityBody.map((item,index)=>{
         if(!doc.includes(item.employeeId)){
-          companyNames.push(item.inCompany);
+          companyIds.push(item.inCompanyId);
           return {
             name:item.employeeId,
             IDCard:item.IDCard,

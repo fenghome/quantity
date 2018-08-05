@@ -13,25 +13,32 @@ router.get('/', function (req, res) {
 })
 
 router.post('/', function (req, res) {
-  let { quantityId, quantityBody } = req.body;
-  let employeeIds = quantityBody.map(item => {
-    return mongoose.Types.ObjectId(item.employeeId);
-  })
-  Employee.find({ _id: { $in: employeeIds } }, { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 }, function (err, doc) {
-    let companyIds = [];
-    let notInEmployees = quantityBody.map((item,index)=>{
-        if(!doc.includes(item.employeeId)){
-          companyIds.push(item.inCompanyId);
-          return {
-            name:item.employeeId,
-            IDCard:item.IDCard,
-            quantityType:item.quantityType,
-            quantityName:getQuantityName(item.quantityType)
-          }
-        }
-      });
-    Company.find({companyName:{$in:companyNames}},)
-  })
+  let { quantityId, inCompanyId, quantityBody } = req.body;
+  res.send(quantityBody);
+  // let employeeIds = quantityBody.map(item => {
+  //   return mongoose.Types.ObjectId(item.employeeId);
+  // })
+  // Employee.find(
+  //   { _id: { $in: employeeIds } },
+  //   { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 },
+  //   function (err, doc) {
+  //     if(err) return res.send({success:false});
+  //     let notInEmployees = quantityBody.map((item, index) => {
+  //       if (!doc.includes(item.employeeId)) {
+  //         return {
+  //           company: inCompanyId,
+  //           name: item.employeeId,
+  //           IDCard: item.IDCard,
+  //           quantityType: item.quantityType,
+  //           quantityName: getQuantityName(item.quantityType)
+  //         }
+  //       }000
+  //     });
+  //     Employee.insertMany(notInEmployees, function (err, doc) {
+  //       if (err) return res.send({ success: false });
+  //       return res.send({success:true,doc});
+  //     })
+  //   })
   // return res.send(req.body);
 })
 

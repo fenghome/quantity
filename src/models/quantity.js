@@ -7,11 +7,11 @@ export default {
     quantitys: [],
     companys: [],
     currQuantityId: '',
+    currInCompanyId: '',
     currQuantity: [
       {
         key: 0,
         outCompany: '',
-        inCompanyId: '',
         employeeId: '',
         IDCard: '',
         quantityType: '',
@@ -48,7 +48,7 @@ export default {
     },
 
     *addQuantity({ payload: addQuantity }, { put, call }) {
-      console.log(addQuantity);
+      console.log('addQuantity',addQuantity);
       const res = yield call(request, `/api/quantity`, {
         method: 'POST',
         body: addQuantity
@@ -62,7 +62,7 @@ export default {
       yield put({ type: 'setCompanys', payload: res.data });
     },
 
-    *updateCurrEQ({payload:{companyName,index}}, { put, call, select }) {
+    *updateCurrEQ({ payload: { companyName, index } }, { put, call, select }) {
 
       const res = yield call(request, `/api/employee/?key=companyName&&value=${companyName}`, {
         method: 'GET'
@@ -74,8 +74,8 @@ export default {
       }
       currObj[index].outCompany = companyName;
       yield put({
-        type:'updateCurrQuantity',
-        payload:currObj
+        type: 'updateCurrQuantity',
+        payload: currObj
       })
     },
 
@@ -105,8 +105,12 @@ export default {
       return { ...state, currQuantityId }
     },
 
+    setCurrInCompanyId(state, { payload: currInCompanyId }) {
+      return { ...state, currInCompanyId }
+    },
+
     updateCurrQuantity(state, { payload: currQuantity }) {
-      console.log('currQiamtoty',currQuantity);
+      console.log('currQiamtoty', currQuantity);
       return { ...state, currQuantity }
     },
 

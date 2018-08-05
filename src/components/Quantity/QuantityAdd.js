@@ -8,7 +8,7 @@ const Option = Select.Option;
 const FormItem = Form.Item;
 
 const QuantityAdd = ({ quantity, form, dispatch }) => {
-  const { companys = [], currQuantity = [{ key: 0 }], currQuantityId } = quantity;
+  const { companys = [], currQuantity = [{ key: 0 }], currQuantityId, currInCompanyId } = quantity;
   const { getFieldDecorator, validateFields } = form;
 
   const columns = [
@@ -16,7 +16,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       key: 'outCompany',
       title: <div style={{ textAlign: "center" }}>调出单位</div>,
       dataIndex: 'outCompany',
-      width: 260,
+      width: 360,
       render: (text, record, index) => (
         <FormItem style={{ width: "100%" }}>
           {
@@ -50,49 +50,11 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         </FormItem>
       )
     },
-    // {
-    //   key: 'inCompanyId',
-    //   title: <div style={{ textAlign: "center" }}>调入单位</div>,
-    //   dataIndex: 'inCompanyId',
-    //   width: 260,
-    //   render: (text, record, index) => (
-    //     <FormItem>
-    //       {
-    //         getFieldDecorator(`inCompanyId${index}`, {
-    //           initialValue: text,
-    //           rules: [
-    //             {
-    //               required: true,
-    //               message: '请选择内容',
-    //               trigger: "onBlur"
-    //             }
-    //           ]
-    //         })(
-    //           <Select
-    //             style={{ width: "100%" }}
-    //             showSearch={true}
-    //             optionFilterProp="children"
-    //             optionLabelProp="children"
-    //             onBlur={(value) => {
-    //               updateCurrQuantity({ inCompanyId: value }, index)
-    //             }}
-    //           >
-    //             {
-    //               companys.map(item => (
-    //                 <Option key={item._id} >{item.companyName}</Option>
-    //               ))
-    //             }
-    //           </Select>
-    //           )
-    //       }
-    //     </FormItem>
-    //   )
-    // },
     {
       key: 'employeeId',
       title: <div style={{ textAlign: "center" }}>姓名</div>,
       dataIndex: 'employeeId',
-      width: 160,
+      width: 220,
       render: (text, record, index) => (
         <FormItem>
           {
@@ -128,7 +90,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       key: 'IDCard',
       title: <div style={{ textAlign: "center" }}>身份证号</div>,
       dataIndex: 'IDCard',
-      width: 200,
+      width: 240,
       render: (text, record, index) => (
         <FormItem>
           {
@@ -240,8 +202,19 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       });
       dispatch({
         type: 'quantity/addQuantity',
-        payload: { quantityId: currQuantityId, quantityBody: currObj }
+        payload: {
+          quantityId: currQuantityId,
+          inCompanyId: currInCompanyId,
+          quantityBody: currObj
+        }
       })
+    })
+  }
+
+  const updateCurrInCompany = (value) => {
+    dispatch({
+      type: 'quantity/setCurrInCompanyId',
+      payload: value
     })
   }
 
@@ -264,38 +237,41 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   return (
     <Card style={{ margin: "24px 24px 0" }}>
       <Form className={styles.addForm} >
-        <div className={styles.quantitySN}>列编卡号:<span>{currQuantityId}</span></div>
-        <FormItem label="调入单位" style={{ float: "right" }}>
-          {
-            getFieldDecorator(`inCompanyId`, {
-              initialValue: '',
-              rules: [
-                {
-                  required: true,
-                  message: '请选择内容',
-                  trigger: "onBlur"
-                }
-              ]
-            })(
-              <Select
-                style={{ width: "100%" }}
-                showSearch={true}
-                optionFilterProp="children"
-                optionLabelProp="children"
-                onBlur={(value) => {
-                  updateCurrQuantity({ inCompanyId: value }, index)
-                }}
-              >
-                {
-                  companys.map(item => (
-                    <Option key={item._id} >{item.companyName}</Option>
-                  ))
-                }
-              </Select>
-              )
-          }
-        </FormItem>
-        <Table rowKey="key" columns={columns} dataSource={currQuantity} style={{ marginTop: 24 }} bordered />
+        <div className={styles.quantityTitle}>
+          <div className={styles.quantitySN}>列编卡号:<span>{currQuantityId}</span></div>
+          <FormItem>
+            <div className={styles.inCompanyStyle}>
+              <span style={{ marginRight: 8 }}>调入单位:</span>
+              {
+                getFieldDecorator('inCompanyId', {
+                  // initialValue: '',
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择内容',
+                    }
+                  ]
+                })(
+                  <Select
+                    style={{ width: 240 }}
+                    showSearch={true}
+                    optionFilterProp="children"
+                    optionLabelProp="children"
+                    onSelect={(value) => {
+                      updateCurrInCompany(value)
+                    }}
+                  >
+                    {
+                      companys.map(item => (
+                        <Option key={item._id} >{item.companyName}</Option>
+                      ))
+                    }
+                  </Select>
+                  )}
+            </div>
+          </FormItem>
+        </div>
+        <Table rowKey="key" columns={columns} dataSource={currQuantity} bordered />
       </Form>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <Button type="primary" style={{ marginRight: 40 }} onClick={addQuantity}>确定</Button>

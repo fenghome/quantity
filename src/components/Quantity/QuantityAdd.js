@@ -72,7 +72,27 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 optionFilterProp="children"
                 optionLabelProp="children"
                 onBlur={value => {
-                  updateCurrQuantity({ employeeId: value }, index)
+                  let obj = { employeeId:value };
+                  // console.log('record',record);
+                  if( record.employees && record.employees.length>0){
+                    const employee = record.employees.find(item=>(
+                      item._id == value
+                    ));
+                    if(employee){
+                      obj = { 
+                        ...obj,
+                        IDCard:employee.IDCard ,
+                        quantityType:employee.quantityType 
+                      }
+                    }else{
+                      obj = {
+                        ...obj,
+                        IDCard:'',
+                        quantityType:''
+                      }
+                    }
+                  }
+                  updateCurrQuantity(obj, index)
                 }}
               >
                 {
@@ -122,11 +142,12 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     {
       key: 'quantityType',
       title: <div style={{ textAlign: "center" }}>编制性质</div>,
-      dataIndex: 'quantityName',
+      dataIndex: 'quantityType',
       width: 170,
       render: (text, record, index) => (
         <FormItem>
           {
+            
             getFieldDecorator(`quantityType${index}`, {
               initialValue: text,
               rules: [

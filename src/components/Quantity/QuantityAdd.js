@@ -72,7 +72,9 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 optionFilterProp="children"
                 optionLabelProp="children"
                 onBlur={value => {
-                  let obj = { employeeId:value };
+                  let obj = {
+                    employeeId:''
+                  };
                   // console.log('record',record);
                   if( record.employees && record.employees.length>0){
                     const employee = record.employees.find(item=>(
@@ -80,15 +82,9 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                     ));
                     if(employee){
                       obj = { 
-                        ...obj,
+                        employeeId:value,
                         IDCard:employee.IDCard ,
                         quantityType:employee.quantityType 
-                      }
-                    }else{
-                      obj = {
-                        ...obj,
-                        IDCard:'',
-                        quantityType:''
                       }
                     }
                   }
@@ -115,7 +111,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         <FormItem>
           {
             getFieldDecorator(`IDCard${index}`, {
-              initialValue: text,
+              initialValue: text ,
               rules: [
                 {
                   required: true,

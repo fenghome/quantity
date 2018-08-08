@@ -13,6 +13,7 @@ export default {
         key: 0,
         outCompany: '',
         employeeId: '',
+        isNewEmployee:true,
         IDCard: '',
         quantityType: '',
         employees: [],

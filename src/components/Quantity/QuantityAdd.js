@@ -73,7 +73,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 optionLabelProp="children"
                 onBlur={value => {
                   let obj = {
-                    employeeId:''
+                    employeeId:value,
+                    isNewEmployee:true,
+                    IDCard:'',
+                    quantityType:''
                   };
                   // console.log('record',record);
                   if( record.employees && record.employees.length>0){
@@ -81,10 +84,11 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                       item._id == value
                     ));
                     if(employee){
-                      obj = { 
+                      obj = {
                         employeeId:value,
+                        isNewEmployee:false,
                         IDCard:employee.IDCard ,
-                        quantityType:employee.quantityType 
+                        quantityType:employee.quantityType
                       }
                     }
                   }
@@ -143,7 +147,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       render: (text, record, index) => (
         <FormItem>
           {
-            
+
             getFieldDecorator(`quantityType${index}`, {
               initialValue: text,
               rules: [

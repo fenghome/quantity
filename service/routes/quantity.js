@@ -14,17 +14,48 @@ router.get('/', function (req, res) {
 
 router.post('/', function (req, res) {
   let { quantityId, inCompanyId, quantityBody } = req.body;
-
-  let employeeIds = quantityBody.map(item => {
-    return item.employeeId;
+  let newEmployees = [];
+  let oldEmployeeIds = [];
+  let oldEmployees = [];
+  quantityBody.forEach(item => {
+    if(item.isNewEmployee){
+      newEmployees.push({
+        company:inCompanyId,
+        name:item.employeeId,
+        IDCard:item.IDCard,
+        quantityType:item.quantityType,
+        quantityName:getQuantityName(item.quantityType)
+      });
+    }else{
+      oldEmployeeIds.push(item.employeeId);
+      oldEmployees.push({
+        company:inCompanyId,
+        IDCard:item.IDCard,
+        quantityType:item.quantityType,
+        quantityName:getQuantityName(item.quantityType)
+      })
+    }
   });
-  console.log('employeeIds',employeeIds);
-  Employee.find(
-    { _id: { $in: employeeIds } },
-    { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 },
-    function (err, doc) {
-      if(err) return res.send({success:false});
-      console.log('doc',doc);
+  Employee.updateMany({_id:{$in:oldEmployeeIds}},{$set:oldEmployees},function(err,doc){
+    return res.send(doc);
+  })
+  // Employee.insertMany(newEmployees,function(err,doc){
+  //   if(err) return res.send({success:false});
+    // console.log('ids',oldEmployeeIds);
+    // console.log('oldEmployees',oldEmployees);
+    // Employee.updateMany({_id:{$in:oldEmployeeIds}},oldEmployees,function(err,doc){
+    //   if(err) return res.send({success:false});
+
+    //   return res.send({success:true,data:doc});
+    // })
+  // })
+  // console.log('employeeIds',employeeIds);
+  // Employee.find(
+  //   { _id: { $in: employeeIds } },
+  //   { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 },
+  //   function (err, doc) {
+  //     if(err) return res.send({success:false});
+  //     console.log('doc',doc);
       // let notInEmployees = [];
       // let inEmployeeIds = [];
       // let inEmployees = [];
@@ -53,7 +84,7 @@ router.post('/', function (req, res) {
       //     })
       //   })
       // })
-    })
+    // })
 })
 
 module.exports = router;

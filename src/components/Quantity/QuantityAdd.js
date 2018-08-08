@@ -8,7 +8,12 @@ const Option = Select.Option;
 const FormItem = Form.Item;
 
 const QuantityAdd = ({ quantity, form, dispatch }) => {
-  const { companys = [], currQuantity = [{ key: 0 }], currQuantityId, currInCompanyId } = quantity;
+  const { 
+    companys = [], 
+    currQuantity = [{ key: 0 }], 
+    currQuantityId,
+    currInCompanyName, 
+    currInCompanyId } = quantity;
   const { getFieldDecorator, validateFields } = form;
 
   const columns = [
@@ -226,16 +231,19 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         payload: {
           quantityId: currQuantityId,
           inCompanyId: currInCompanyId,
+          inCompanyName:currInCompanyName,
           quantityBody: currObj
         }
       })
     })
   }
 
-  const updateCurrInCompany = (value) => {
+  const updateCurrInCompany = (value,option) => {
     dispatch({
-      type: 'quantity/setCurrInCompanyId',
-      payload: value
+      type: 'quantity/setCurrInCompany',
+      payload: {
+        currInCompanyId:value,
+        currInCompanyName:option.props.children}
     })
   }
 
@@ -278,8 +286,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                     showSearch={true}
                     optionFilterProp="children"
                     optionLabelProp="children"
-                    onSelect={(value) => {
-                      updateCurrInCompany(value)
+                    onSelect={(value,option) => {
+                      updateCurrInCompany(value,option)
                     }}
                   >
                     {

@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); 
 
 var mongoose = require('mongoose');
 const router = express.Router();
@@ -7,16 +7,17 @@ const Employee = require('../models/employee');
 const Company = require('../models/company');
 const { getQuantityName } = require('../utils/utils');
 
-
 router.get('/', function (req, res) {
   return res.send({ success: true, data: [] });
 })
 
 router.post('/', function (req, res) {
-  let { quantityId, inCompanyId, quantityBody } = req.body;
+  let { quantityId, inCompanyId, inCompanyName,quantityBody } = req.body;
+  
   let newEmployees = [];
   let oldEmployeeIds = [];
   let oldEmployees = [];
+  let quantitys = [];
   quantityBody.forEach(item => {
     if(item.isNewEmployee){
       newEmployees.push({
@@ -35,56 +36,34 @@ router.post('/', function (req, res) {
         quantityName:getQuantityName(item.quantityType)
       })
     }
+    quantitys.push({
+      quantityId,
+      employee:item.employeeId,
+      quantityType:item.quantityType,
+      quantityName:item.quantityName,
+      inCompanyName,
+      outCompanyName:item.outCompany
+    })
   });
-  Employee.updateMany({_id:{$in:oldEmployeeIds}},{$set:oldEmployees},function(err,doc){
-    return res.send(doc);
-  })
-  // Employee.insertMany(newEmployees,function(err,doc){
-  //   if(err) return res.send({success:false});
-    // console.log('ids',oldEmployeeIds);
-    // console.log('oldEmployees',oldEmployees);
-    // Employee.updateMany({_id:{$in:oldEmployeeIds}},oldEmployees,function(err,doc){
-    //   if(err) return res.send({success:false});
 
-    //   return res.send({success:true,data:doc});
-    // })
-  // })
-  // console.log('employeeIds',employeeIds);
-  // Employee.find(
-  //   { _id: { $in: employeeIds } },
-  //   { name: 0, IDCard: 0, company: 0, quantityName: 0, quantityType: 0 },
-  //   function (err, doc) {
-  //     if(err) return res.send({success:false});
-  //     console.log('doc',doc);
-      // let notInEmployees = [];
-      // let inEmployeeIds = [];
-      // let inEmployees = [];
-      // quantityBody.forEach((item, index) => {
-      //   const employeeObj = {
-      //     company: inCompanyId,
-      //     name: item.employeeId,
-      //     IDCard: item.IDCard,
-      //     quantityType: item.quantityType,
-      //     quantityName: getQuantityName(item.quantityType)
-      //   }
-      //   if (doc.includes(item.employeeId)) {
-      //     inEmployeeIds.push(item.employeeId);
-      //     inEmployees.push(employeeObj);
-      //   }else{
-      //     notInEmployees.push(employeeObj);
-      //   }
-      // });
-      // Employee.insertMany(notInEmployees, function (err, doc) {
-      //   if (err) return res.send({ success: false });
-      //   Employee.updateMany({_id:{$in:inEmployeeIds}},inEmployees,function(err,doc){
-      //     if(err) return res.send({success:false});
-      //     return res.send({
-      //       success:false,
-      //       data:doc
-      //     })
-      //   })
-      // })
-    // })
+  Employee.insertMany(newEmployees,function(err,doc){
+    if(err) return res.send({success:false});
+    Employee.find({_id:{$in:oldEmployeeIds}},function(err,doc){
+      if(err) return res.send({success:false});
+      doc.forEach((item,index)=>{
+        item.company= oldEmployees[index].company;
+        item.IDCard=oldEmployees[index].IDCard;
+        item.quantityType = oldEmployees[index].quantityType;
+        item.quantityName = oldEmployees[index].quantityName;
+        item.save();
+      });
+      Quantity.insertMany(quantitys,function(err,doc){
+        if(err) return res.send({success:false});
+        return res.send({success:true,data:doc});
+      })
+    })
+  })
+
 })
 
 module.exports = router;

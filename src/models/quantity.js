@@ -8,6 +8,7 @@ export default {
     companys: [],
     currQuantityId: '',
     currInCompanyId: '',
+    currInCompanyName:'',
     currQuantity: [
       {
         key: 0,
@@ -106,8 +107,8 @@ export default {
       return { ...state, currQuantityId }
     },
 
-    setCurrInCompanyId(state, { payload: currInCompanyId }) {
-      return { ...state, currInCompanyId }
+    setCurrInCompany(state, { payload: currInCompany }) {
+      return { ...state, ...currInCompany }
     },
 
     updateCurrQuantity(state, { payload: currQuantity }) {

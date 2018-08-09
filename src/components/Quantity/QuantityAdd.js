@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Card, Table, Button, Divider, Select, Input } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import { IdCodeValid } from '../../utils/utils';
 import styles from './QuantityAdd.less';
 
@@ -8,11 +9,11 @@ const Option = Select.Option;
 const FormItem = Form.Item;
 
 const QuantityAdd = ({ quantity, form, dispatch }) => {
-  const { 
-    companys = [], 
-    currQuantity = [{ key: 0 }], 
+  const {
+    companys = [],
+    currQuantity = [{ key: 0 }],
     currQuantityId,
-    currInCompanyName, 
+    currInCompanyName,
     currInCompanyId } = quantity;
   const { getFieldDecorator, validateFields } = form;
 
@@ -263,6 +264,13 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     })
   }
 
+  const cancelQuantity = ()=>{
+    dispatch({
+      type:'quantity/reloadState'
+    });
+    dispatch(routerRedux.push('/quantity/list'));
+  }
+
   return (
     <Card style={{ margin: "24px 24px 0" }}>
       <Form className={styles.addForm} >
@@ -304,7 +312,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       </Form>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <Button type="primary" style={{ marginRight: 40 }} onClick={addQuantity}>确定</Button>
-        <Button>取消</Button>
+        <Button onClick={cancelQuantity}>取消</Button>
       </div>
     </Card>
   )

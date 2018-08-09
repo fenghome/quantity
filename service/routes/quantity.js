@@ -1,4 +1,4 @@
-const express = require('express'); 
+const express = require('express');
 
 var mongoose = require('mongoose');
 const router = express.Router();
@@ -8,62 +8,83 @@ const Company = require('../models/company');
 const { getQuantityName } = require('../utils/utils');
 
 router.get('/', function (req, res) {
-  return res.send({ success: true, data: [] });
+  Quantity.find()
+    .populate({ path: 'employee', select: { name: 1, IDCard: 1 } })
+    .exec(function (err, doc) {
+      if (err) return res.send({ success: false });
+      res.send({ success: true, data: doc });
+    });
 })
 
 router.post('/', function (req, res) {
-  let { quantityId, inCompanyId, inCompanyName,quantityBody } = req.body;
-  
+  let { quantityId, inCompanyId, inCompanyName, quantityBody } = req.body;
+
   let newEmployees = [];
+  let newQuantitys = [];
   let oldEmployeeIds = [];
   let oldEmployees = [];
-  let quantitys = [];
+  let oldQuantitys = [];
   quantityBody.forEach(item => {
-    if(item.isNewEmployee){
+    if (item.isNewEmployee) {
       newEmployees.push({
-        company:inCompanyId,
-        name:item.employeeId,
-        IDCard:item.IDCard,
-        quantityType:item.quantityType,
-        quantityName:getQuantityName(item.quantityType)
+        company: inCompanyId,
+        name: item.employeeId,
+        IDCard: item.IDCard,
+        quantityType: item.quantityType,
+        quantityName: getQuantityName(item.quantityType)
       });
-    }else{
+      newQuantitys.push({
+        quantityId,
+        // employee:item.employeeId,
+        IDCard: item.IDCard,
+        quantityType: item.quantityType,
+        quantityName: getQuantityName(item.quantityType),
+        inCompanyName,
+        outCompanyName: item.outCompany
+      })
+    } else {
       oldEmployeeIds.push(item.employeeId);
       oldEmployees.push({
-        company:inCompanyId,
-        IDCard:item.IDCard,
-        quantityType:item.quantityType,
-        quantityName:getQuantityName(item.quantityType)
+        company: inCompanyId,
+        IDCard: item.IDCard,
+        quantityType: item.quantityType,
+        quantityName: getQuantityName(item.quantityType)
+      });
+      oldQuantitys.push({
+        quantityId,
+        employee: item.employeeId,
+        quantityType: item.quantityType,
+        quantityName: getQuantityName(item.quantityType),
+        inCompanyName,
+        outCompanyName: item.outCompany
       })
     }
-    quantitys.push({
-      quantityId,
-      employee:item.employeeId,
-      quantityType:item.quantityType,
-      quantityName:item.quantityName,
-      inCompanyName,
-      outCompanyName:item.outCompany
-    })
+
   });
 
-  Employee.insertMany(newEmployees,function(err,doc){
-    if(err) return res.send({success:false});
-    Employee.find({_id:{$in:oldEmployeeIds}},function(err,doc){
-      if(err) return res.send({success:false});
-      doc.forEach((item,index)=>{
-        item.company= oldEmployees[index].company;
-        item.IDCard=oldEmployees[index].IDCard;
+  Employee.insertMany(newEmployees, function (err, insertEmployees) {
+    if (err) return res.send({ success: false, data: err });
+    newQuantitys.map((q, index) => {
+      const emp = insertEmployees.find(e => e.IDCard == q.IDCard);
+      newQuantitys[index].employee = emp._id;
+      delete newQuantitys[index].IDCard;
+    });
+    Employee.find({ _id: { $in: oldEmployeeIds } }, function (err, doc) {
+      if (err) return res.send({ success: false, data: err });
+      doc.forEach((item, index) => {
+        item.company = oldEmployees[index].company;
+        item.IDCard = oldEmployees[index].IDCard;
         item.quantityType = oldEmployees[index].quantityType;
         item.quantityName = oldEmployees[index].quantityName;
         item.save();
       });
-      Quantity.insertMany(quantitys,function(err,doc){
-        if(err) return res.send({success:false});
+      let quantitys = [...newQuantitys, ...oldQuantitys];
+      Quantity.insertMany(quantitys, function (err, doc) {
+        if (err) return res.send({ success: false, data: err });
         return res.send({success:true,data:doc});
       })
     })
   })
-
 })
 
 module.exports = router;

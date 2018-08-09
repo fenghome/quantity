@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 const InputGroup = Input.Group;
 const Search = Input.Search;
 
-const QuantityList = ({ form, match, routerData, dispatch, quantity }) => {
+const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) => {
 
   const { quantitys } = quantity;
   const columns = [
@@ -20,32 +20,32 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity }) => {
     },
     {
       title: <div style={{ textAlign: "center" }}>姓名</div>,
-      dataIndex: 'name',
-      key: 'name',
-      render: (text) => (
+      dataIndex: 'employee.name',
+      key: 'employee.name',
+      render: (text,record) => (
         <div style={{ textAlign: "center" }}>{text}</div>
       )
     },
     {
       title: <div style={{ textAlign: "center" }}>身份证号</div>,
-      dataIndex: 'IDCard',
-      key: 'IDCard',
+      dataIndex: 'employee.IDCard',
+      key: 'employee.IDCard',
       render: (text) => (
         <div style={{ textAlign: "center" }}>{text}</div>
       )
     },
     {
       title: <div style={{ textAlign: "center" }}>编制类型</div>,
-      dataIndex: 'quantityType',
-      key: 'quantityType',
+      dataIndex: 'quantityName',
+      key: 'quantityName',
       render: (text) => (
         <div style={{ textAlign: "center" }}>{text}</div>
       )
     },
     {
       title: <div style={{ textAlign: "center" }}>调入单位</div>,
-      dataIndex: 'inCompany',
-      key: 'inCompany',
+      dataIndex: 'inCompanyName',
+      key: 'inCompanyName',
       width: 300,
       render: (text) => (
         <div style={{ textAlign: "center" }}>{text}</div>
@@ -53,8 +53,8 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity }) => {
     },
     {
       title: <div style={{ textAlign: "center" }}>调出单位</div>,
-      dataIndex: 'outCompany',
-      key: 'outCompany',
+      dataIndex: 'outCompanyName',
+      key: 'outCompanyName',
       render: (text) => (
         <div style={{ textAlign: "center" }}>{text}</div>
       )
@@ -247,14 +247,21 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity }) => {
         <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
       </InputGroup>
       <Button type="primary" onClick={onAddQuantity}><Icon type="plus" />新增</Button>
-      <Table rowKey="quantityId" columns={columns} dataSource={dataSource} style={{ marginTop: 24 }} bordered />
+      <Table
+        rowKey="quantityId"
+        loading={loading}
+        columns={columns}
+        dataSource={quantitys}
+        style={{ marginTop: 24 }}
+        bordered
+      />
     </Card>
 
   )
 }
 
 function mapStateToProps(state) {
-  return { quantity: state.quantity }
+  return { quantity: state.quantity,loading:state.loading.models.quantity }
 }
 
 export default connect(mapStateToProps)(Form.create()(QuantityList));

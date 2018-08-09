@@ -1,6 +1,6 @@
 import request from '../utils/request';
 import { message } from 'antd';
-
+import { routerRedux } from 'dva/router';
 export default {
   namespace: 'quantity',
   state: {
@@ -8,13 +8,13 @@ export default {
     companys: [],
     currQuantityId: '',
     currInCompanyId: '',
-    currInCompanyName:'',
+    currInCompanyName: '',
     currQuantity: [
       {
         key: 0,
         outCompany: '',
         employeeId: '',
-        isNewEmployee:true,
+        isNewEmployee: true,
         IDCard: '',
         quantityType: '',
         employees: [],
@@ -36,8 +36,11 @@ export default {
 
   effects: {
     *reloadState(action, { put }) {
+      yield put({ type: 'initState' });
+
       yield put({ type: 'getQuantitys' });
       yield put({ type: 'getCompanys' });
+
     },
 
     *getQuantitys(action, { put, call }) {
@@ -50,11 +53,15 @@ export default {
     },
 
     *addQuantity({ payload: addQuantity }, { put, call }) {
-      console.log('addQuantity',addQuantity);
       const res = yield call(request, `/api/quantity`, {
         method: 'POST',
         body: addQuantity
-      })
+      });
+      if (!res.success) {
+        message.info('新增失败');
+      }
+      yield put({type:'reloadState'});
+      yield put(routerRedux.push('/quantity/list'));
     },
 
     *getCompanys(action, { put, call }) {
@@ -95,6 +102,27 @@ export default {
   },
 
   reducers: {
+    initState(state, action) {
+      return {
+        quantitys: [],
+        companys: [],
+        currQuantityId: '',
+        currInCompanyId: '',
+        currInCompanyName: '',
+        currQuantity: [
+          {
+            key: 0,
+            outCompany: '',
+            employeeId: '',
+            isNewEmployee: true,
+            IDCard: '',
+            quantityType: '',
+            employees: [],
+          }
+        ]
+      }
+    },
+
     setQuantitys(state, { payload: quantitys }) {
       return { ...state, quantitys }
     },

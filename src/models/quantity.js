@@ -9,6 +9,7 @@ export default {
     currQuantityId: '',
     currInCompanyId: '',
     currInCompanyName: '',
+    currInCompanyApplys:null,
     currQuantity: [
       {
         key: 0,
@@ -140,7 +141,6 @@ export default {
     },
 
     updateCurrQuantity(state, { payload: currQuantity }) {
-      console.log('currQiamtoty', currQuantity);
       return { ...state, currQuantity }
     },
 

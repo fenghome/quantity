@@ -1,8 +1,8 @@
 import React from 'react';
-import { Form, Card, Table, Button, Divider, Select, Input } from 'antd';
+import { Form, Card, Table, Button, Divider, Select, Input, message } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { IdCodeValid } from '../../utils/utils';
+import { IdCodeValid, getQuantityApplyProp } from '../../utils/utils';
 import styles from './QuantityAdd.less';
 
 const Option = Select.Option;
@@ -14,8 +14,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     currQuantity = [{ key: 0 }],
     currQuantityId,
     currInCompanyName,
-    currInCompanyId } = quantity;
-  const { getFieldDecorator, validateFields } = form;
+    currInCompanyId,
+    currInCompanyApplys
+  } = quantity;
+  const { getFieldDecorator, validateFields, resetFields, setFields } = form;
 
   const columns = [
     {
@@ -79,22 +81,22 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                 optionLabelProp="children"
                 onBlur={value => {
                   let obj = {
-                    employeeId:value,
-                    isNewEmployee:true,
-                    IDCard:'',
-                    quantityType:''
+                    employeeId: value,
+                    isNewEmployee: true,
+                    IDCard: '',
+                    quantityType: ''
                   };
                   // console.log('record',record);
-                  if( record.employees && record.employees.length>0){
-                    const employee = record.employees.find(item=>(
+                  if (record.employees && record.employees.length > 0) {
+                    const employee = record.employees.find(item => (
                       item._id == value
                     ));
-                    if(employee){
+                    if (employee) {
                       obj = {
-                        employeeId:value,
-                        isNewEmployee:false,
-                        IDCard:employee.IDCard ,
-                        quantityType:employee.quantityType
+                        employeeId: value,
+                        isNewEmployee: false,
+                        IDCard: employee.IDCard,
+                        quantityType: employee.quantityType
                       }
                     }
                   }
@@ -121,7 +123,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         <FormItem>
           {
             getFieldDecorator(`IDCard${index}`, {
-              initialValue: text ,
+              initialValue: text,
               rules: [
                 {
                   required: true,
@@ -165,6 +167,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
             })(
               <Select
                 style={{ width: "100%" }}
+                allowClear={true}
                 onSelect={
                   (value) => updateCurrQuantity({ quantityType: value }, index)
                 }
@@ -232,25 +235,56 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         payload: {
           quantityId: currQuantityId,
           inCompanyId: currInCompanyId,
-          inCompanyName:currInCompanyName,
+          inCompanyName: currInCompanyName,
           quantityBody: currObj
         }
       })
     })
   }
 
-  const updateCurrInCompany = (value,option) => {
+  const updateCurrInCompany = (value, option) => {
+    let selectCompany = companys.find(item => {
+      return item._id == value
+    });
+    let currInCompanyApplys = {
+      applyXZ: selectCompany.applyXZ,
+      applyZF: selectCompany.applyZF,
+      applyGQ: selectCompany.applyGQ,
+      applyQE: selectCompany.applyQE,
+      applyCE: selectCompany.applyCE,
+      applyZS: selectCompany.applyZS,
+    }
     dispatch({
       type: 'quantity/setCurrInCompany',
       payload: {
-        currInCompanyId:value,
-        currInCompanyName:option.props.children}
+        currInCompanyId: value,
+        currInCompanyName: option.props.children,
+        currInCompanyApplys
+      },
     })
   }
 
   const updateCurrQuantity = (obj, index) => {
     let currObj = [...currQuantity];
     currObj[index] = { ...currQuantity[index], ...obj };
+    //如果是更改编制情况执行下面的操作
+    if (obj.quantityType) {
+      //获得当前编制类型的使用数量
+      let useNumber = 0;
+      currObj.forEach(item => {
+        if (item.quantityType == obj.quantityType) {
+          useNumber++;
+        }
+      });
+      const currApplyNumber = currInCompanyApplys[getQuantityApplyProp(obj.quantityType)];
+      if (useNumber > currApplyNumber) {
+        message.info('超出拟使用编制数');
+        let fildsObj = {};
+        fildsObj[`quantityType${index}`] = { value: '', errors: [new Error('forbid ha')] };
+        setFields(fildsObj);
+        return;
+      }
+    }
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj
@@ -264,9 +298,9 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     })
   }
 
-  const cancelQuantity = ()=>{
+  const cancelQuantity = () => {
     dispatch({
-      type:'quantity/reloadState'
+      type: 'quantity/reloadState'
     });
     dispatch(routerRedux.push('/quantity/list'));
   }
@@ -294,8 +328,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                     showSearch={true}
                     optionFilterProp="children"
                     optionLabelProp="children"
-                    onSelect={(value,option) => {
-                      updateCurrInCompany(value,option)
+                    onSelect={(value, option) => {
+                      updateCurrInCompany(value, option)
                     }}
                   >
                     {

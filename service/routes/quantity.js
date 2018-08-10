@@ -5,7 +5,7 @@ const router = express.Router();
 const Quantity = require('../models/quantity');
 const Employee = require('../models/employee');
 const Company = require('../models/company');
-const { getQuantityName } = require('../utils/utils');
+const { getQuantityName, getQuantityInfactProp } = require('../utils/utils');
 
 router.get('/', function (req, res) {
   Quantity.find()
@@ -24,6 +24,7 @@ router.post('/', function (req, res) {
   let oldEmployeeIds = [];
   let oldEmployees = [];
   let oldQuantitys = [];
+  let companys = {};
   quantityBody.forEach(item => {
     if (item.isNewEmployee) {
       newEmployees.push({
@@ -60,6 +61,10 @@ router.post('/', function (req, res) {
       })
     }
 
+    //根据company分类汇总
+    const infactProp = getQuantityInfactProp(item.quantityType);
+    companys[infactProp] = parseInt(companys[infactProp]) || 0 + 1;
+
   });
 
   Employee.insertMany(newEmployees, function (err, insertEmployees) {
@@ -78,11 +83,19 @@ router.post('/', function (req, res) {
         item.quantityName = oldEmployees[index].quantityName;
         item.save();
       });
-      let quantitys = [...newQuantitys, ...oldQuantitys];
-      Quantity.insertMany(quantitys, function (err, doc) {
+      Company.findOne({ _id: inCompanyId }, function (err, doc) {
         if (err) return res.send({ success: false, data: err });
-        return res.send({success:true,data:doc});
+        for (key in companys) {
+          doc[key] = parseInt(doc[key]) + parseInt(companys[key]);
+        }
+        doc.save();
+        let quantitys = [...newQuantitys, ...oldQuantitys];
+        Quantity.insertMany(quantitys, function (err, doc) {
+          if (err) return res.send({ success: false, data: err });
+          return res.send({ success: true, data: doc });
+        })
       })
+
     })
   })
 })

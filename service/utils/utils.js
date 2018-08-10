@@ -35,3 +35,8 @@ exports.getQuantityApplyProp = function getQuantityApplyProp(quantityType) {
       break;
   }
 }
+
+exports.getQuantityInfactProp =  function getQuantityInfactProp(quantityType) {
+  return "infact" + quantityType.slice(-2);
+}
+

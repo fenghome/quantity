@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Card, Table, Button, Divider, Select, Input, message } from 'antd';
+import { Form, Card, Table, Button, Divider, Select, Input, message, Alert } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { IdCodeValid, getQuantityApplyProp } from '../../utils/utils';
@@ -310,6 +310,15 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       <Form className={styles.addForm} >
         <div className={styles.quantityTitle}>
           <div className={styles.quantitySN}>列编卡号:<span>{currQuantityId}</span></div>
+          {
+            currInCompanyApplys &&
+            <Alert
+            type="info"
+            style={{width:500}}
+            message={
+
+              }/>
+            }
           <FormItem>
             <div className={styles.inCompanyStyle}>
               <span style={{ marginRight: 8 }}>调入单位:</span>

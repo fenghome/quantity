@@ -10,6 +10,11 @@ export default {
     currInCompanyId: '',
     currInCompanyName: '',
     currInCompanyApplys:null,
+    currInCompanyUses:null,
+    quantityInfo:{
+      success:true,
+      message:'',
+    },
     currQuantity: [
       {
         key: 0,

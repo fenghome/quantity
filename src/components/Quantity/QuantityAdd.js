@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Card, Table, Button, Divider, Select, Input, message, Alert } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { IdCodeValid, getQuantityApplyProp } from '../../utils/utils';
+import { IdCodeValid, getQuantityApplyProp,getQuantityName } from '../../utils/utils';
 import styles from './QuantityAdd.less';
 
 const Option = Select.Option;
@@ -15,7 +15,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     currQuantityId,
     currInCompanyName,
     currInCompanyId,
-    currInCompanyApplys
+    currInCompanyApplys,
+    currInCompanyUses,
+    quantityInfo,
+    
   } = quantity;
   const { getFieldDecorator, validateFields, resetFields, setFields } = form;
 
@@ -261,8 +264,43 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         currInCompanyName: option.props.children,
         currInCompanyApplys
       },
+    });
+    let info = {
+      success:quantityInfo.success,
+      message:getQuantityMessage(currInCompanyApplys,currInCompanyUses)
+    }
+    dispatch({
+      type:'quantity/updateQuantityInfo',
+      payload:info,
     })
   }
+
+  //根据currInCompanyApplys和currInCompanyUses来确定可用编制提示信息
+  const getQuantityMessage = (currInCompanyApplys,currInCompanyUses)=>{
+    
+    let message = '可用编制数：';
+
+    if(!currInCompanyApplys) return message;
+
+    for(key in currInCompanyApplys){
+      let quantityName = getQuantityName(key);
+      let applyNumber = currInCompanyApplys[key];
+      if(parseInt(applyNumber)>0){
+        message = message + `${quantityName}编制${applyNumber}名;`
+      }
+    }
+    if(message.slice(-1)==';'){
+      message = message.slice(0,message.length-1) + '。';
+    }
+
+    for(key in currInCompanyUses){
+      
+    }
+    return message;
+
+
+  }
+  
 
   const updateCurrQuantity = (obj, index) => {
     let currObj = [...currQuantity];

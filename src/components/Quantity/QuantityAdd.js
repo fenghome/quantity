@@ -265,40 +265,56 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         currInCompanyApplys
       },
     });
-    let info = {
-      success:quantityInfo.success,
-      message:getQuantityMessage(currInCompanyApplys,currInCompanyUses)
-    }
-    dispatch({
-      type:'quantity/updateQuantityInfo',
-      payload:info,
-    })
+    updateQuantityInfo();
   }
 
-  //根据currInCompanyApplys和currInCompanyUses来确定可用编制提示信息
-  const getQuantityMessage = (currInCompanyApplys,currInCompanyUses)=>{
+ 
+  const updateQuantityInfo = ()=>{
     
+    if(!currInCompanyApplys) return;
+
     let message = '可用编制数：';
-
-    if(!currInCompanyApplys) return message;
-
     for(key in currInCompanyApplys){
       let quantityName = getQuantityName(key);
       let applyNumber = currInCompanyApplys[key];
       if(parseInt(applyNumber)>0){
-        message = message + `${quantityName}编制${applyNumber}名;`
+        message = message + `${quantityName}编制${applyNumber}名；`
       }
     }
-    if(message.slice(-1)==';'){
+    if(message.slice(-1)=='；'){
       message = message.slice(0,message.length-1) + '。';
     }
 
+    let errMessage = '';
     for(key in currInCompanyUses){
-      
+      let useNumber = currInCompanyUses[key];
+      let applyNumber = currInCompanyApplys[key] || 0;
+      let quantityName = getQuantityName(key);
+      if( userNumber > applyNumber ){
+        errMessage = errMessage + `${quantityName}编制超出可用数量；`
+      }
     }
-    return message;
+    if(errMessage.slice(-1)=='；'){
+      errMessage = errMessage.slice(0,errMessage.length-1) + '。';
+    }
 
-
+    if(errMessage){
+      dispatch({
+        type:'quantity/updateQuantityInfo',
+        payload:{
+          success:false,
+          message:errMessage
+        }
+      })
+    }else{
+      dispatch({
+        type:'quantity/updateQuantityInfo',
+        payload:{
+          success:true,
+          message:message
+        }
+      })
+    }
   }
   
 
@@ -314,15 +330,15 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
           useNumber++;
         }
       });
-      const currApplyNumber = currInCompanyApplys[getQuantityApplyProp(obj.quantityType)];
-      if (useNumber > currApplyNumber) {
-        message.info('超出拟使用编制数');
-        let fildsObj = {};
-        fildsObj[`quantityType${index}`] = { value: '', errors: [new Error('forbid ha')] };
-        setFields(fildsObj);
-        return;
-      }
+      let useObj = { ...currInCompanyUses};
+      useObj[getQuantityApplyProp(obj.quantityType)] = userNumber;
+      dispatch({
+        type:'quantity/upadteCurrInCompanyUses',
+        payload:useObj
+      });
+      updateQuantityInfo();
     }
+
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj

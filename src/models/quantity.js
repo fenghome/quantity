@@ -151,6 +151,14 @@ export default {
 
     setCurrEmployees(state, { payload: currEmployees }) {
       return { ...state, currEmployees }
+    },
+
+    updateQuantityInfo(state,{payload:quantityInfo}){
+      return { ...state, quantityInfo }
+    },
+
+    upadteCurrInCompanyUses(state,{payload:currInCompanyUses}){
+      return { ...state, currInCompanyUses}
     }
   }
 }

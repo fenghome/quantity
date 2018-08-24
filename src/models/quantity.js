@@ -157,7 +157,7 @@ export default {
       return { ...state, quantityInfo }
     },
 
-    upadteCurrInCompanyUses(state,{payload:currInCompanyUses}){
+    updateCurrInCompanyUses(state,{payload:currInCompanyUses}){
       return { ...state, currInCompanyUses}
     }
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Card, Table, Button, Divider, Select, Input, message, Alert } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { IdCodeValid, getQuantityApplyProp,getQuantityName } from '../../utils/utils';
+import { IdCodeValid, getQuantityApplyProp, getQuantityName, getQuantityNameForApply, getQuantityInfactProp } from '../../utils/utils';
 import styles from './QuantityAdd.less';
 
 const Option = Select.Option;
@@ -18,7 +18,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     currInCompanyApplys,
     currInCompanyUses,
     quantityInfo,
-    
+
   } = quantity;
   const { getFieldDecorator, validateFields, resetFields, setFields } = form;
 
@@ -210,7 +210,8 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj
-    })
+    });
+    updateCurrInCompanyUses(currObj);
   }
 
   const dellCurrQuantity = (index) => {
@@ -223,12 +224,18 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj
-    })
+    });
+    updateCurrInCompanyUses(currObj);
   }
 
   const addQuantity = () => {
     validateFields((err, values) => {
       if (err) return;
+      if (quantityInfo && !quantityInfo.success){
+        message.info('超出可用编制数');
+        return;
+      }
+    // ////////
       let currObj = currQuantity.map(item => {
         const { employees, ...resObj } = item;
         return resObj;
@@ -265,80 +272,78 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         currInCompanyApplys
       },
     });
-    updateQuantityInfo();
+    updateQuantityInfo(currInCompanyApplys);
   }
 
- 
-  const updateQuantityInfo = ()=>{
-    
-    if(!currInCompanyApplys) return;
 
-    let message = '可用编制数：';
-    for(key in currInCompanyApplys){
-      let quantityName = getQuantityName(key);
-      let applyNumber = currInCompanyApplys[key];
-      if(parseInt(applyNumber)>0){
-        message = message + `${quantityName}编制${applyNumber}名；`
+  const updateQuantityInfo = (currApplys, currUses) => {
+    let inCompanyApplys = currApplys || currInCompanyApplys;
+    let okMessage = '可用编制数：';
+    for (let key in inCompanyApplys) {
+      let quantityName = getQuantityNameForApply(key);
+      let applyNumber = inCompanyApplys[key];
+      if (parseInt(applyNumber) > 0) {
+        okMessage = okMessage + `${quantityName}编制${applyNumber}名；`
       }
     }
-    if(message.slice(-1)=='；'){
-      message = message.slice(0,message.length-1) + '。';
+    if (okMessage.slice(-1) == '；') {
+      okMessage = okMessage.slice(0, okMessage.length - 1) + '。';
     }
 
     let errMessage = '';
-    for(key in currInCompanyUses){
-      let useNumber = currInCompanyUses[key];
-      let applyNumber = currInCompanyApplys[key] || 0;
-      let quantityName = getQuantityName(key);
-      if( userNumber > applyNumber ){
+    let inCompanyUses = currUses || currInCompanyUses;
+    for (let key in inCompanyUses) {
+      let useNumber = inCompanyUses[key];
+      let applyNumber = inCompanyApplys[key] || 0;
+      let quantityName = getQuantityNameForApply(key);
+      if (useNumber > applyNumber) {
         errMessage = errMessage + `${quantityName}编制超出可用数量；`
       }
     }
-    if(errMessage.slice(-1)=='；'){
-      errMessage = errMessage.slice(0,errMessage.length-1) + '。';
+    if (errMessage.slice(-1) == '；') {
+      errMessage = errMessage.slice(0, errMessage.length - 1) + '。';
     }
 
-    if(errMessage){
+    if (errMessage) {
       dispatch({
-        type:'quantity/updateQuantityInfo',
-        payload:{
-          success:false,
-          message:errMessage
+        type: 'quantity/updateQuantityInfo',
+        payload: {
+          success: false,
+          message: errMessage
         }
       })
-    }else{
+    } else {
       dispatch({
-        type:'quantity/updateQuantityInfo',
-        payload:{
-          success:true,
-          message:message
+        type: 'quantity/updateQuantityInfo',
+        payload: {
+          success: true,
+          message: okMessage
         }
       })
     }
   }
-  
+
+  const updateCurrInCompanyUses = (currQuantity) => {
+    let useObj = {};
+    currQuantity.forEach(item => {
+      if (item.quantityType) {
+        let applyProp = getQuantityApplyProp(item.quantityType);
+        useObj[applyProp] = useObj[applyProp] || 0;
+        useObj[applyProp] += 1;
+      }
+    });
+    dispatch({
+      type: 'quantity/updateCurrInCompanyUses',
+      payload: useObj
+    });
+    updateQuantityInfo(null, useObj);
+  }
 
   const updateCurrQuantity = (obj, index) => {
     let currObj = [...currQuantity];
     currObj[index] = { ...currQuantity[index], ...obj };
     //如果是更改编制情况执行下面的操作
-    if (obj.quantityType) {
-      //获得当前编制类型的使用数量
-      let useNumber = 0;
-      currObj.forEach(item => {
-        if (item.quantityType == obj.quantityType) {
-          useNumber++;
-        }
-      });
-      let useObj = { ...currInCompanyUses};
-      useObj[getQuantityApplyProp(obj.quantityType)] = userNumber;
-      dispatch({
-        type:'quantity/upadteCurrInCompanyUses',
-        payload:useObj
-      });
-      updateQuantityInfo();
-    }
-
+    updateCurrInCompanyUses(currObj);
     dispatch({
       type: 'quantity/updateCurrQuantity',
       payload: currObj
@@ -365,14 +370,14 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         <div className={styles.quantityTitle}>
           <div className={styles.quantitySN}>列编卡号:<span>{currQuantityId}</span></div>
           {
-            currInCompanyApplys &&
+            quantityInfo && quantityInfo.message &&
             <Alert
-            type="info"
-            style={{width:500}}
-            message={
-
-              }/>
-            }
+              type={quantityInfo.success ? "info" : "error"}
+              style={{ width: 500 }}
+              message={
+                quantityInfo.message
+              } />
+          }
           <FormItem>
             <div className={styles.inCompanyStyle}>
               <span style={{ marginRight: 8 }}>调入单位:</span>

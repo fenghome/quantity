@@ -187,6 +187,25 @@ export function getQuantityName(quantityType){
   }
 }
 
+export function getQuantityNameForApply(applyProp){
+  switch (applyProp) {
+    case 'applyXZ':
+      return '行政'
+    case 'applyZF':
+      return '政法'
+    case 'applyGQ':
+      return '工勤'
+    case 'applyQE':
+      return '全额拨款事业'
+    case 'applyCE':
+      return '差额拨款事业'
+    case 'applyZS':
+      return '自收自支事业'
+    default:
+      break;
+  }
+}
+
 export function IdCodeValid(code) {
   //身份证号合法性验证
   //支持15位和18位身份证号

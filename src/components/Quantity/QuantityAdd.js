@@ -231,24 +231,39 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   const addQuantity = () => {
     validateFields((err, values) => {
       if (err) return;
-      if (quantityInfo && !quantityInfo.success){
+      //验证是否超出可用编制数
+      if (quantityInfo && !quantityInfo.success) {
         message.info('超出可用编制数');
         return;
       }
-    // ////////
+      //验证调出调入是否为同一单位
+      for (let i = 0; i < currQuantity.length; i++) {
+        if (currQuantity[i].outCompany == currInCompanyName) {
+          dispatch({
+            type: 'quantity/updateQuantityInfo',
+            payload: {
+              success: false,
+              message: '调出单位与调入单位为同一单位'
+            }
+          })
+          return;
+        }
+      }
+
       let currObj = currQuantity.map(item => {
         const { employees, ...resObj } = item;
         return resObj;
       });
-      dispatch({
-        type: 'quantity/addQuantity',
-        payload: {
-          quantityId: currQuantityId,
-          inCompanyId: currInCompanyId,
-          inCompanyName: currInCompanyName,
-          quantityBody: currObj
-        }
-      })
+
+      // dispatch({
+      //   type: 'quantity/addQuantity',
+      //   payload: {
+      //     quantityId: currQuantityId,
+      //     inCompanyId: currInCompanyId,
+      //     inCompanyName: currInCompanyName,
+      //     quantityBody: currObj
+      //   }
+      // })
     })
   }
 
@@ -276,12 +291,12 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   }
 
 
-  const updateQuantityInfo = (currApplys, currUses) => {
-    let inCompanyApplys = currApplys || currInCompanyApplys;
+  const updateQuantityInfo = (currApplys = currInCompanyApplys, currUses = currInCompanyUses) => {
+    // let inCompanyApplys = currApplys || currInCompanyApplys;
     let okMessage = '可用编制数：';
-    for (let key in inCompanyApplys) {
+    for (let key in currApplys) {
       let quantityName = getQuantityNameForApply(key);
-      let applyNumber = inCompanyApplys[key];
+      let applyNumber = currApplys[key];
       if (parseInt(applyNumber) > 0) {
         okMessage = okMessage + `${quantityName}编制${applyNumber}名；`
       }
@@ -291,10 +306,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     }
 
     let errMessage = '';
-    let inCompanyUses = currUses || currInCompanyUses;
-    for (let key in inCompanyUses) {
-      let useNumber = inCompanyUses[key];
-      let applyNumber = inCompanyApplys[key] || 0;
+    // let inCompanyUses = currUses || currInCompanyUses;
+    for (let key in currUses) {
+      let useNumber = currUses[key];
+      let applyNumber = currApplys[key] || 0;
       let quantityName = getQuantityNameForApply(key);
       if (useNumber > applyNumber) {
         errMessage = errMessage + `${quantityName}编制超出可用数量；`
@@ -336,7 +351,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       type: 'quantity/updateCurrInCompanyUses',
       payload: useObj
     });
-    updateQuantityInfo(null, useObj);
+    updateQuantityInfo(_, useObj);
   }
 
   const updateCurrQuantity = (obj, index) => {
@@ -351,6 +366,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   }
 
   const updateCurrEQ = (companyName, index) => {
+    updateQuantityInfo();
     dispatch({
       type: 'quantity/updateCurrEQ',
       payload: { companyName, index }

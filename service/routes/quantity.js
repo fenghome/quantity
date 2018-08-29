@@ -5,7 +5,7 @@ const router = express.Router();
 const Quantity = require('../models/quantity');
 const Employee = require('../models/employee');
 const Company = require('../models/company');
-const { getQuantityName, getQuantityInfactProp } = require('../utils/utils');
+const { getQuantityName, getQuantityInfactProp, getInfactPropFormApply, getQuantityApplyProp } = require('../utils/utils');
 
 router.get('/', function (req, res) {
   Quantity.find()
@@ -17,14 +17,16 @@ router.get('/', function (req, res) {
 })
 
 router.post('/', function (req, res) {
-  let { quantityId, inCompanyId, inCompanyName, quantityBody } = req.body;
+  let { quantityId, inCompanyId, inCompanyName, currInCompanyUses, quantityBody } = req.body;
 
   let newEmployees = [];
   let newQuantitys = [];
   let oldEmployeeIds = [];
   let oldEmployees = [];
   let oldQuantitys = [];
-  let companys = {};
+  let inCompanys = {};
+  let outCompanyNames = [];
+  let outCompanys = {};
   quantityBody.forEach(item => {
     if (item.isNewEmployee) {
       newEmployees.push({
@@ -63,41 +65,66 @@ router.post('/', function (req, res) {
 
     //根据company分类汇总
     const infactProp = getQuantityInfactProp(item.quantityType);
-    companys[infactProp] = parseInt(companys[infactProp]) || 0 + 1;
+    inCompanys[infactProp] = parseInt(inCompanys[infactProp] || 0) + 1;
+    const applyProp = getQuantityApplyProp(item.quantityType);
+    inCompanys[applyProp] = parseInt(inCompanys[applyProp] || 0) + 1;
+    //调出单位编制调整信息
+    let outCompanyName = item.outCompany;
+    outCompanyNames.push(outCompanyName);
+    let outCompany = {};
+    if (!outCompanys[outCompanyName]) {
+      outCompany[infactProp] = 1;
+      outCompanys[outCompanyName] = { ...outCompany };
+    } else if (outCompany[outCompanyName] && !outCompanys[outCompanyName][infactProp]) {
+      outCompany[infactProp] = 1;
+      outCompanys[outCompanyName] = { ...outCompany[outCompanyName], ...outCompany };
+    } else {
+      outCompany[infactProp] = parseInt(outCompanys[outCompanyName][infactProp]) + 1;
+      outCompanys[outCompanyName] = { ...outCompany[outCompanyName], ...outCompany };
+    }
+  })
+});
 
+Employee.insertMany(newEmployees, function (err, insertEmployees) {
+  if (err) return res.send({ success: false, data: err });
+  newQuantitys.map((q, index) => {
+    const emp = insertEmployees.find(e => e.IDCard == q.IDCard);
+    newQuantitys[index].employee = emp._id;
+    delete newQuantitys[index].IDCard;
   });
-
-  Employee.insertMany(newEmployees, function (err, insertEmployees) {
+  Employee.find({ _id: { $in: oldEmployeeIds } }, function (err, doc) {
     if (err) return res.send({ success: false, data: err });
-    newQuantitys.map((q, index) => {
-      const emp = insertEmployees.find(e => e.IDCard == q.IDCard);
-      newQuantitys[index].employee = emp._id;
-      delete newQuantitys[index].IDCard;
+    doc.forEach((item, index) => {
+      item.company = oldEmployees[index].company;
+      item.IDCard = oldEmployees[index].IDCard;
+      item.quantityType = oldEmployees[index].quantityType;
+      item.quantityName = oldEmployees[index].quantityName;
+      item.save();
     });
-    Employee.find({ _id: { $in: oldEmployeeIds } }, function (err, doc) {
+    Company.findOne({ _id: inCompanyId }, function (err, doc) {
       if (err) return res.send({ success: false, data: err });
-      doc.forEach((item, index) => {
-        item.company = oldEmployees[index].company;
-        item.IDCard = oldEmployees[index].IDCard;
-        item.quantityType = oldEmployees[index].quantityType;
-        item.quantityName = oldEmployees[index].quantityName;
-        item.save();
-      });
-      Company.findOne({ _id: inCompanyId }, function (err, doc) {
+      for (key in inCompanys) {
+        doc[key] = parseInt(doc[key]) + parseInt(inCompanys[key]);
+      }
+      doc.save();
+      let quantitys = [...newQuantitys, ...oldQuantitys];
+      Quantity.insertMany(quantitys, function (err, doc) {
         if (err) return res.send({ success: false, data: err });
-        for (key in companys) {
-          doc[key] = parseInt(doc[key]) + parseInt(companys[key]);
-        }
-        doc.save();
-        let quantitys = [...newQuantitys, ...oldQuantitys];
-        Quantity.insertMany(quantitys, function (err, doc) {
+        Company.findOne({ _id: inCompanyId }, function (err, doc) {
           if (err) return res.send({ success: false, data: err });
+          for (key in currInCompanyUses) {
+            let infactProp = getInfactPropFormApply(key);
+            doc[infactProp] = doc[infactProp] + currInCompanyUses[key];
+            doc[key] = doc[key] - currInCompanyUses[key];
+          }
+          doc.save();
           return res.send({ success: true, data: doc });
         })
       })
-
     })
+
   })
+})
 })
 
 module.exports = router;

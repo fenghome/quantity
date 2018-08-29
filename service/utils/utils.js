@@ -40,3 +40,6 @@ exports.getQuantityInfactProp =  function getQuantityInfactProp(quantityType) {
   return "infact" + quantityType.slice(-2);
 }
 
+exports.getInfactPropFormApply = function getInfactPropFormApply(applyProp){
+  return 'infact' + applyProp.slice('-2');
+}

@@ -94,6 +94,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                     const employee = record.employees.find(item => (
                       item._id == value
                     ));
+                    console.log('employee',employee);
                     if (employee) {
                       obj = {
                         employeeId: value,
@@ -103,6 +104,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
                       }
                     }
                   }
+                  console.log('obj',obj);
                   updateCurrQuantity(obj, index)
                 }}
               >
@@ -255,15 +257,16 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
         return resObj;
       });
 
-      // dispatch({
-      //   type: 'quantity/addQuantity',
-      //   payload: {
-      //     quantityId: currQuantityId,
-      //     inCompanyId: currInCompanyId,
-      //     inCompanyName: currInCompanyName,
-      //     quantityBody: currObj
-      //   }
-      // })
+      dispatch({
+        type: 'quantity/addQuantity',
+        payload: {
+          quantityId: currQuantityId,
+          inCompanyId: currInCompanyId,
+          inCompanyName: currInCompanyName,
+          currInCompanyUses:currInCompanyUses,
+          quantityBody: currObj
+        }
+      })
     })
   }
 
@@ -291,12 +294,12 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
   }
 
 
-  const updateQuantityInfo = (currApplys = currInCompanyApplys, currUses = currInCompanyUses) => {
-    // let inCompanyApplys = currApplys || currInCompanyApplys;
+  const updateQuantityInfo = (currApplys, currUses) => {
+    let inCompanyApplys = currApplys || currInCompanyApplys;
     let okMessage = '可用编制数：';
-    for (let key in currApplys) {
+    for (let key in inCompanyApplys) {
       let quantityName = getQuantityNameForApply(key);
-      let applyNumber = currApplys[key];
+      let applyNumber = inCompanyApplys[key];
       if (parseInt(applyNumber) > 0) {
         okMessage = okMessage + `${quantityName}编制${applyNumber}名；`
       }
@@ -306,10 +309,10 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
     }
 
     let errMessage = '';
-    // let inCompanyUses = currUses || currInCompanyUses;
-    for (let key in currUses) {
-      let useNumber = currUses[key];
-      let applyNumber = currApplys[key] || 0;
+    let inCompanyUses = currUses || currInCompanyUses;
+    for (let key in inCompanyUses) {
+      let useNumber = inCompanyUses[key];
+      let applyNumber = inCompanyApplys[key] || 0;
       let quantityName = getQuantityNameForApply(key);
       if (useNumber > applyNumber) {
         errMessage = errMessage + `${quantityName}编制超出可用数量；`
@@ -351,7 +354,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       type: 'quantity/updateCurrInCompanyUses',
       payload: useObj
     });
-    updateQuantityInfo(_, useObj);
+    updateQuantityInfo(null, useObj);
   }
 
   const updateCurrQuantity = (obj, index) => {
@@ -363,6 +366,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
       type: 'quantity/updateCurrQuantity',
       payload: currObj
     });
+    resetFields(`IDCard${index}`,`quantityType${index}`);
   }
 
   const updateCurrEQ = (companyName, index) => {
@@ -399,7 +403,7 @@ const QuantityAdd = ({ quantity, form, dispatch }) => {
               <span style={{ marginRight: 8 }}>调入单位:</span>
               {
                 getFieldDecorator('inCompanyId', {
-                  // initialValue: '',
+                  initialValue: currInCompanyId,
                   rules: [
                     {
                       required: true,

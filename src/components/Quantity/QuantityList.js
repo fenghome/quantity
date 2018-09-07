@@ -64,7 +64,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
       key: 'option',
       render: () => (
         <div style={{ textAlign: "center" }}>
-          <a>编辑</a>
+          <a onClick={onEditQuantity}>编辑</a>
           <Divider type="vertical" />
           <a>删除</a>
           <Divider type="vertical" />
@@ -230,6 +230,10 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
       payload:quantityId
     })
     dispatch(routerRedux.push('/quantity/add'));
+  }
+
+  const onEditQuantity = ()=>{
+    dispatch(routerRedux.push('/quantity/edit'));
   }
 
   return (

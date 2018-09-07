@@ -85,6 +85,10 @@ export const getRouterData = app => {
       name:'新增',
       component: dynamicWrapper(app, ['quantity'], () => import('../components/Quantity/QuantityAdd.js')),
     },
+    '/quantity/edit':{
+      name:'编辑',
+      component: dynamicWrapper(app, ['quantity'], () => import('../components/Quantity/QuantityEdit.js')),
+    },
     '/company': {
       component: dynamicWrapper(app, ['company'], () => import('../routes/Company')),
     },

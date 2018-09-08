@@ -1,19 +1,19 @@
 import request from '../utils/request';
-import { message } from 'antd';
-import { routerRedux } from 'dva/router';
+import {message} from 'antd';
+import {routerRedux} from 'dva/router';
 export default {
-  namespace: 'quantity',
-  state: {
+  namespace : 'quantity',
+  state : {
     quantitys: [],
     companys: [],
     currQuantityId: '',
     currInCompanyId: '',
     currInCompanyName: '',
-    currInCompanyApplys:null,
-    currInCompanyUses:null,
-    quantityInfo:{
-      success:true,
-      message:'',
+    currInCompanyApplys: null,
+    currInCompanyUses: null,
+    quantityInfo: {
+      success: true,
+      message: ''
     },
     currQuantity: [
       {
@@ -23,42 +23,88 @@ export default {
         isNewEmployee: true,
         IDCard: '',
         quantityType: '',
-        employees: [],
+        employees: []
       }
-    ],
+    ]
   },
 
-  subscriptions: {
-    setup({ dispatch, history }) {
-      history.listen(({ pathname }) => {
+  subscriptions : {
+    setup({dispatch, history}) {
+      history.listen(({pathname}) => {
         if (pathname === '/quantity/list') {
-          dispatch({
-            type: 'reloadState'
-          });
+          dispatch({type: 'reloadState'});
         }
       });
     }
   },
 
-  effects: {
-    *reloadState(action, { put }) {
-      yield put({ type: 'initState' });
-
-      yield put({ type: 'getQuantitys' });
-      yield put({ type: 'getCompanys' });
-
+  effects : {
+    *reloadState(action, {put}) {
+      yield put({type: 'initState'});
+      yield put({type: 'getQuantitys'});
+      yield put({type: 'getCompanys'});
     },
 
-    *getQuantitys(action, { put, call }) {
-      const res = yield call(request, `/api/quantity`, {
-        method: 'GET'
+    *initEditQuantity({payload:quantityId},{put,call,select}){
+      const quantitys = yield select(state=>state.quantity.quantitys);
+      const comapnys = yield select(state=>state.quantity.companys);
+      //get currInCompanyName
+      const { inCompanyName:currInCompanyName } = quantitys.find(item=>{
+        return item.quantityId == quantityId;
+      })
+      //get currInCompanyId
+      const inCompany = companys.find(item=>{
+        return item.companyName == currInCompanyName;
       });
-      if (res && res.success) {
-        yield put({ type: 'setQuantitys', payload: res.data || [] });
+      let currInCompanyId = '';
+      if(inCompany){
+        currInCompanyId = inCompany._id;
+      }
+
+
+      yield put({
+        type:'setCurrQuantityId',
+        payload:currQuantityId
+      });
+      const res = yield call(request,`/api/currquantity?quantityId=${currQuantityId}`,{method:'GET'})
+    },
+
+    *getQuantitys(action, {put, call}) {
+      const res = yield call(request, `/api/quantity`, {method: 'GET'});
+      if (res && res.success && res.data.length > 0) {
+        //set data.rowSpan
+        let data = res.data;
+        let temRow = 0;
+        if (data.length == 1) {
+          data[0].rowSpan = 1;
+        } else {
+          for (let i = data.length - 1; i >= 0; i--) {
+            if (i == 0) {
+              if (data[0].quantityId == data[1].quantityId) {
+                data[0].rowSpan = temRow + 1;
+              } else {
+                data[0].rowSpan = 1;
+              }
+            } else {
+              if (data[i].quantityId == data[i - 1].quantityId) {
+                data[i].rowSpan = 0;
+                temRow++;
+              } else {
+                data[i].rowSpan = temRow + 1;
+                temRow = 0;
+              }
+            }
+          }
+        }
+
+        yield put({
+          type: 'setQuantitys',
+          payload: data || []
+        });
       }
     },
 
-    *addQuantity({ payload: addQuantity }, { put, call }) {
+    * addQuantity({payload: addQuantity}, {put, call}) {
       const res = yield call(request, `/api/quantity`, {
         method: 'POST',
         body: addQuantity
@@ -66,38 +112,36 @@ export default {
       if (!res.success) {
         message.info('新增失败');
       }
-      yield put({type:'reloadState'});
+      yield put({type: 'reloadState'});
       yield put(routerRedux.push('/quantity/list'));
     },
 
-    *getCompanys(action, { put, call }) {
-      const res = yield call(request, `/api/company`, {
-        meithod: 'GET'
-      });
-      yield put({ type: 'setCompanys', payload: res.data });
+    * getCompanys(action, {put, call}) {
+      const res = yield call(request, `/api/company`, {meithod: 'GET'});
+      yield put({type: 'setCompanys', payload: res.data});
     },
 
-    *updateCurrEQ({ payload: { companyName, index } }, { put, call, select }) {
+    * updateCurrEQ({
+      payload: {
+        companyName,
+        index
+      }
+    }, {put, call, select}) {
 
-      const res = yield call(request, `/api/employee/?key=companyName&&value=${companyName}`, {
-        method: 'GET'
-      });
-      const { currQuantity } = yield select(state => state.quantity);
+      const res = yield call(request, `/api/employee/?key=companyName&&value=${companyName}`, {method: 'GET'});
+      const {currQuantity} = yield select(state => state.quantity);
       let currObj = [...currQuantity];
       if (res.success) {
         currObj[index].employees = res.data;
       }
       currObj[index].outCompany = companyName;
-      yield put({
-        type: 'updateCurrQuantity',
-        payload: currObj
-      })
+      yield put({type: 'updateCurrQuantity', payload: currObj})
     },
 
-    *getCurrEmployees({ payload: companyName }, { put, call }) {
-      const res = yield call(request, `/api/employees/?companyName=${companyName}`, {
-        method: 'GET'
-      });
+    * getCurrEmployees({
+      payload: companyName
+    }, {put, call}) {
+      const res = yield call(request, `/api/employees/?companyName=${companyName}`, {method: 'GET'});
       if (res.success) {
         yield put({
           type: 'setCurrEmployees',
@@ -107,7 +151,7 @@ export default {
     }
   },
 
-  reducers: {
+  reducers : {
     initState(state, action) {
       return {
         quantitys: [],
@@ -123,42 +167,67 @@ export default {
             isNewEmployee: true,
             IDCard: '',
             quantityType: '',
-            employees: [],
+            employees: []
           }
         ]
       }
     },
 
-    setQuantitys(state, { payload: quantitys }) {
-      return { ...state, quantitys }
+    setQuantitys(state, {payload: quantitys}) {
+      console.log(quantitys);
+      return {
+        ...state,
+        quantitys
+      }
     },
 
-    setCompanys(state, { payload: companys }) {
-      return { ...state, companys }
+    setCompanys(state, {payload: companys}) {
+      return {
+        ...state,
+        companys
+      }
     },
 
-    setCurrQuantityId(state, { payload: currQuantityId }) {
-      return { ...state, currQuantityId }
+    setCurrQuantityId(state, {payload: currQuantityId}) {
+      return {
+        ...state,
+        currQuantityId
+      }
     },
 
-    setCurrInCompany(state, { payload: currInCompany }) {
-      return { ...state, ...currInCompany }
+    setCurrInCompany(state, {payload: currInCompany}) {
+      return {
+        ...state,
+        ...currInCompany
+      }
     },
 
-    updateCurrQuantity(state, { payload: currQuantity }) {
-      return { ...state, currQuantity }
+    updateCurrQuantity(state, {payload: currQuantity}) {
+      return {
+        ...state,
+        currQuantity
+      }
     },
 
-    setCurrEmployees(state, { payload: currEmployees }) {
-      return { ...state, currEmployees }
+    setCurrEmployees(state, {payload: currEmployees}) {
+      return {
+        ...state,
+        currEmployees
+      }
     },
 
-    updateQuantityInfo(state,{payload:quantityInfo}){
-      return { ...state, quantityInfo }
+    updateQuantityInfo(state, {payload: quantityInfo}) {
+      return {
+        ...state,
+        quantityInfo
+      }
     },
 
-    updateCurrInCompanyUses(state,{payload:currInCompanyUses}){
-      return { ...state, currInCompanyUses}
+    updateCurrInCompanyUses(state, {payload: currInCompanyUses}) {
+      return {
+        ...state,
+        currInCompanyUses
+      }
     }
   }
 }

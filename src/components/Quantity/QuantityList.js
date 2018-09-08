@@ -14,9 +14,14 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
       title: <div style={{ textAlign: "center" }}>列编卡号</div>,
       dataIndex: 'quantityId',
       key: 'quantityId',
-      render: (text) => (
-        <div style={{ textAlign: "center" }}>{text}</div>
-      )
+      render: (text,row,index) => {
+        return {
+          children: <div style={{ textAlign: "center" }}>{text}</div>,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        }
+      }
     },
     {
       title: <div style={{ textAlign: "center" }}>姓名</div>,
@@ -62,15 +67,22 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
     {
       title: <div style={{ textAlign: "center" }}>操作</div>,
       key: 'option',
-      render: () => (
-        <div style={{ textAlign: "center" }}>
-          <a onClick={onEditQuantity}>编辑</a>
-          <Divider type="vertical" />
-          <a>删除</a>
-          <Divider type="vertical" />
-          <a>打印</a>
-        </div>
-      )
+      render: (text,row,index) => {
+        return {
+          children:(
+            <div style={{ textAlign: "center" }}>
+              <a onClick={()=>onEditQuantity(row.quantityId,index)}>编辑</a>
+              <Divider type="vertical" />
+              <a>删除</a>
+              <Divider type="vertical" />
+              <a>打印</a>
+            </div>
+          ),
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        }
+      }
     }
   ];
 
@@ -232,7 +244,11 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
     dispatch(routerRedux.push('/quantity/add'));
   }
 
-  const onEditQuantity = ()=>{
+  const onEditQuantity = (quantityId,index)=>{
+    dispatch({
+      type:'quantity/initEditQuantity',
+      payload:quatityId
+    });
     dispatch(routerRedux.push('/quantity/edit'));
   }
 
@@ -252,7 +268,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
       </InputGroup>
       <Button type="primary" onClick={onAddQuantity}><Icon type="plus" />新增</Button>
       <Table
-        rowKey="quantityId"
+        rowKey="_id"
         loading={loading}
         columns={columns}
         dataSource={quantitys}

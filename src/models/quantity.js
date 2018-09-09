@@ -15,11 +15,12 @@ export default {
       success: true,
       message: ''
     },
-    currQuantity: [
+    currQuantity: [ 
       {
         key: 0,
         outCompany: '',
         employeeId: '',
+        employeeName:'',
         isNewEmployee: true,
         IDCard: '',
         quantityType: '',
@@ -47,26 +48,62 @@ export default {
 
     *initEditQuantity({payload:quantityId},{put,call,select}){
       const quantitys = yield select(state=>state.quantity.quantitys);
-      const comapnys = yield select(state=>state.quantity.companys);
+      const companys = yield select(state=>state.quantity.companys);
+      //set currQuantityId
+      yield put({
+        type:'setCurrQuantityId',
+        payload:quantityId
+      });
       //get currInCompanyName
       const { inCompanyName:currInCompanyName } = quantitys.find(item=>{
         return item.quantityId == quantityId;
       })
+
       //get currInCompanyId
       const inCompany = companys.find(item=>{
         return item.companyName == currInCompanyName;
       });
-      let currInCompanyId = '';
-      if(inCompany){
-        currInCompanyId = inCompany._id;
+      const currInCompanyId = inCompany._id;
+      //get currInCompanyApplys
+      const currInCompanyApplys = {
+        applyXZ: inCompany.applyXZ,
+        applyZF: inCompany.applyZF,
+        applyGQ: inCompany.applyGQ,
+        applyQE: inCompany.applyQE,
+        applyCE: inCompany.applyCE,
+        applyZS: inCompany.applyZS,
       }
-
-
+      //set currInCompany
       yield put({
-        type:'setCurrQuantityId',
-        payload:currQuantityId
+        type:'setCurrInCompany',
+        payload:{
+          currInCompanyId,
+          currInCompanyName,
+          currInCompanyApplys,
+        }
+      })
+
+      const quantityBody = quantitys.filter(item=>{
+        return item.quantityId == quantityId;
+      })
+
+      //get currQuantity and set currQuantity
+      const currQuantity = quantityBody.map((item,index)=>{
+        let resQuantity = {};
+        resQuantity.key = index;
+        resQuantity.outCompany = item.outCompanyName;
+        resQuantity.employeeId = item.employee._id;
+        resQuantity.employeeName = item.employee.name;
+        resQuantity.isNewEmployee = false;
+        resQuantity.IDCard = item.employee.IDCard;
+        resQuantity.quantityType = item.quantityType;
+        resQuantity.employees = [];
+        return resQuantity;
       });
-      const res = yield call(request,`/api/currquantity?quantityId=${currQuantityId}`,{method:'GET'})
+      yield put({
+        type:'updateCurrQuantity',
+        payload:currQuantity
+      });
     },
 
     *getQuantitys(action, {put, call}) {
@@ -164,6 +201,7 @@ export default {
             key: 0,
             outCompany: '',
             employeeId: '',
+            employeeName:'',
             isNewEmployee: true,
             IDCard: '',
             quantityType: '',

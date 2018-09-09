@@ -244,10 +244,10 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
     dispatch(routerRedux.push('/quantity/add'));
   }
 
-  const onEditQuantity = (quantityId,index)=>{
+  const onEditQuantity = (quantityId)=>{
     dispatch({
       type:'quantity/initEditQuantity',
-      payload:quatityId
+      payload:quantityId
     });
     dispatch(routerRedux.push('/quantity/edit'));
   }

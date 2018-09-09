@@ -61,9 +61,9 @@ const QuantityEdit = ({ quantity, form, dispatch }) => {
       )
     },
     {
-      key: 'employeeId',
+      key: 'employeeName',
       title: <div style={{ textAlign: "center" }}>姓名</div>,
-      dataIndex: 'employeeId',
+      dataIndex: 'employeeName',
       width: 220,
       render: (text, record, index) => (
         <FormItem>

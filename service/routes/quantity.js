@@ -126,4 +126,77 @@ router.post('/', function (req, res) {
   })
 });
 
+router.delete('/:quantityId',function(req,res,next){
+  Quantity.find({quantityId:req.params.quantityId})
+  .populate({path:'employee',select:{'name':1,'IDCard':1,'company':1}})
+  .sort({"_id":-1})
+  .exec(function(err,quantity){
+    if(err) return res.send({success:false,data:err});
+    let employeeIds = [];
+    let outCompanyNames = [];
+    let employeeMap = {};
+    let outCompanyMap = {};
+    let inCompanyMap = {};
+
+    quantity.forEach(item=>{
+      let employeeId = item.employee._id;
+      let outCompanyName = item.outCompanyName;
+      employeeIds.push(employeeId);
+      outCompanyNames.push(outCompanyName);
+      employeeMap[employeeId] = item.outCompanyName;
+      outCompanyMap[outCompanyName] = outCompanyMap[outCompanyName] || {};
+      let quantityType = item.quantityType;
+      let infactProp = getQuantityInfactProp(quantityType);
+      outCompanyMap[outCompanyName][infactProp] = outCompanyMap[outCompanyName][infactProp]||0 + 1;
+      inCompanyMap[infactProp] = inCompanyMap[infactProp]||0 - 1;
+      let applyProp = getQuantityApplyProp(quantityType);
+      inCompanyMap[applyProp] = inCompanyMap[applyProp]||0 + 1;
+    }); 
+    Employee.find({_id:{$in:employeeIds}},function(err,employees){
+      if(err) return res.send({success:false,data:err});
+      Company.find({companyName:{$in:outCompanyNames}},function(err,companys){
+        if(err) return res.send({success:false,data:err});
+        let removeEmployeeIds = [];
+        if(companys.length == 0 ){
+          removeEmployeeIds = employeeIds;
+        }else{
+          employees.forEach(e=>{
+            let company = companys.find(item=>{
+              return item.companyName == employeeMap[e._id];
+            });
+            if(company){
+              e.company = company._id;
+              e.save();
+            }else{
+              removeEmployeeIds = employeeIds;
+            }
+          });
+        }
+        Employee.remove({_id:{$in:removeEmployeeIds}}).exec();
+        
+        if(companys.length > 0){
+          companys.forEach(c=>{
+            Object.keys(outCompanyMap[c.companyName]).forEach(k=>{
+              c[k] = c[k] + outCompanyMap[c.companyName][k];
+            });
+            c.save();
+          });
+        }
+        
+        Company.findOne({companyName:quantity[0].inCompanyName},function(err,doc){
+          Object.keys(inCompanyMap).forEach(key=>{
+            doc[key] = doc[key] + inCompanyMap[key];
+            doc.save();
+          })
+        })
+
+        Quantity.remove({quantityId:req.params.quantityId},function(err,doc){
+          if(err) return res.send({success:false,data:err});
+          return res.send({success:true,data:doc});
+        })
+      })
+    })
+  })
+})
+
 module.exports = router;

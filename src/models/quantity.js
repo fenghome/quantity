@@ -110,7 +110,7 @@ export default {
       const res = yield call(request, `/api/quantity`, {method: 'GET'});
       if (res && res.success && res.data.length > 0) {
         //set data.rowSpan
-        let data = res.data;
+        let data = res.data; 
         let temRow = 0;
         if (data.length == 1) {
           data[0].rowSpan = 1;
@@ -151,6 +151,12 @@ export default {
       }
       yield put({type: 'reloadState'});
       yield put(routerRedux.push('/quantity/list'));
+    },
+
+    * deleteQuantity({payload:quantityId},{put,call}){
+      yield call(request,`/api/quantity/${quantityId}`,{
+        method:'DELETE',
+      })
     },
 
     * getCompanys(action, {put, call}) {
@@ -212,7 +218,6 @@ export default {
     },
 
     setQuantitys(state, {payload: quantitys}) {
-      console.log(quantitys);
       return {
         ...state,
         quantitys

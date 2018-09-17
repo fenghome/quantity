@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider, Select } from 'antd';
+import { Card, Form, Input, Row, Col, Button, Icon, Table, Divider, Select, Popconfirm } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 const FormItem = Form.Item;
@@ -52,9 +52,16 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
       dataIndex: 'inCompanyName',
       key: 'inCompanyName',
       width: 300,
-      render: (text) => (
-        <div style={{ textAlign: "center" }}>{text}</div>
-      )
+      render:  (text,row,index) => {
+        return {
+          children:(
+            <div style={{ textAlign: "center" }}>{text}</div>
+          ),
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        }
+      }
     },
     {
       title: <div style={{ textAlign: "center" }}>调出单位</div>,
@@ -71,9 +78,11 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
         return {
           children:(
             <div style={{ textAlign: "center" }}>
-              <a onClick={()=>onEditQuantity(row.quantityId,index)}>编辑</a>
-              <Divider type="vertical" />
-              <a>删除</a>
+              <Popconfirm title="确定要删除此条记录吗" 
+              onConfirm={()=>onDeleteQuantity(row.quantityId)}
+              okText="是" cancelText="否">
+                <a>删除</a>
+              </Popconfirm>
               <Divider type="vertical" />
               <a>打印</a>
             </div>
@@ -236,20 +245,23 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
   const onAddQuantity = () => {
     const myDate = new Date();
     const year = myDate.getFullYear();
-    const quantityId = `Q${year}` + `0000${quantitys.length + 1}`.slice(-4);
+    let SNnumber = 1;
+    if(quantitys.length>0){
+      SNnumber = parseInt(quantitys[quantitys.length-1].quantityId.slice(-4)) + 1;
+    }
+    const quantityId = `Q${year}` + `0000${SNnumber}`.slice(-4);
     dispatch({
       type:'quantity/setCurrQuantityId',
-      payload:quantityId
+      payload:quantityId 
     })
     dispatch(routerRedux.push('/quantity/add'));
   }
 
-  const onEditQuantity = (quantityId)=>{
+  const onDeleteQuantity = (quantityId)=>{
     dispatch({
-      type:'quantity/initEditQuantity',
+      type:'quantity/deleteQuantity',
       payload:quantityId
     });
-    dispatch(routerRedux.push('/quantity/edit'));
   }
 
   return (
@@ -262,7 +274,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
           <Option key="IDCard">身份证号</Option>
           <Option key="quantityType">编制类型</Option>
           <Option key="inCompany">调入单位</Option>
-          <Option key="outCompany">调入单位</Option>
+          <Option key="outCompany">调出单位</Option>
         </Select>
         <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
       </InputGroup>

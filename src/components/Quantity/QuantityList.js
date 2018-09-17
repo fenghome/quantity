@@ -5,10 +5,11 @@ import { routerRedux } from 'dva/router';
 const FormItem = Form.Item;
 const InputGroup = Input.Group;
 const Search = Input.Search;
+const Option = Select.Option;
 
 const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) => {
 
-  const { quantitys } = quantity;
+  const { quantitys,searchKey } = quantity;
   const columns = [
     {
       title: <div style={{ textAlign: "center" }}>列编卡号</div>,
@@ -78,7 +79,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
         return {
           children:(
             <div style={{ textAlign: "center" }}>
-              <Popconfirm title="确定要删除此条记录吗" 
+              <Popconfirm title="确定要删除此条记录吗"
               onConfirm={()=>onDeleteQuantity(row.quantityId)}
               okText="是" cancelText="否">
                 <a>删除</a>
@@ -252,7 +253,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
     const quantityId = `Q${year}` + `0000${SNnumber}`.slice(-4);
     dispatch({
       type:'quantity/setCurrQuantityId',
-      payload:quantityId 
+      payload:quantityId
     })
     dispatch(routerRedux.push('/quantity/add'));
   }
@@ -264,19 +265,38 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
     });
   }
 
+  const onSearchQuantity = (value)=>{
+    dispatch({
+      type:'quantity/searchQuantity',
+      payload:{
+        key:searchKey,
+        value:value
+      }
+    })
+  }
+
+  const onSelectSearchKey = (value)=>{
+    dispatch({
+      type:'quantity/setSearchKey',
+      payload:value
+    })
+  }
   return (
 
     <Card style={{ margin: "24px 24px 0" }}>
       <InputGroup compact style={{ float: "right", width: 340 }}>
-        <Select style={{ width: "30%" }}>
-          <Option key="quantityID">列编卡号</Option>
+        <Select
+          style={{ width: "30%" }}
+          defaultValue="quantityId"
+          onBlur={(key)=>{onSelectSearchKey(key)}}>
+          <Option key="quantityId">列编卡号</Option>
           <Option key="name">姓名</Option>
           <Option key="IDCard">身份证号</Option>
           <Option key="quantityType">编制类型</Option>
           <Option key="inCompany">调入单位</Option>
           <Option key="outCompany">调出单位</Option>
         </Select>
-        <Search enterButton onSearch={(value) => searchEmployee(value)} style={{ width: "70%" }} />
+        <Search enterButton onSearch={(value) => onSearchQuantity(value)} style={{ width: "70%" }} />
       </InputGroup>
       <Button type="primary" onClick={onAddQuantity}><Icon type="plus" />新增</Button>
       <Table

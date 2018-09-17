@@ -7,14 +7,35 @@ const Employee = require('../models/employee');
 const Company = require('../models/company');
 const { getQuantityName, getQuantityInfactProp, getInfactPropFormApply, getQuantityApplyProp } = require('../utils/utils');
 
-router.get('/', function (req, res) {
-  Quantity.find()
+router.get('/', function (req, res,next) {
+  const keyValue = req.query.key;
+  const value = req.query.value;
+  if(keyValue == "name"){
+    let employeeIds = [];
+    Employee.find({name:value},function(err,doc){
+      doc && doc.forEach(item=>{
+        employeeIds.push(item._id);
+      });
+      console.log('aaa',employeeIds);
+      Quantity.find({employee:{$in:employeeIds}})
+        .populate({ path:'employee',select:{name:1,IDCard:1}})
+        .exec(function(err,doc){
+          return res.send({success:true,data:doc});
+        })
+    })
+  }else{
+    let filter = {};
+    if(keyValue && value){
+      filter[keyValue] = value;
+    }
+    Quantity.find(filter)
     .populate({ path: 'employee', select: { name: 1, IDCard: 1 } })
     .sort({ "_id": -1 })
     .exec(function (err, doc) {
       if (err) return res.send({ success: false });
       res.send({ success: true, data: doc });
     });
+  }
 })
 
 router.post('/', function (req, res) {
@@ -102,16 +123,16 @@ router.post('/', function (req, res) {
       });
       Company.findOne({ _id: inCompanyId }, function (err, doc) {
         if (err) return res.send({ success: false, data: err });
-        for (key in inCompanys) {
-          doc[key] = parseInt(doc[key]) + parseInt(inCompanys[key]);
+        for (keyValue in inCompanys) {
+          doc[keyValue] = parseInt(doc[keyValue]) + parseInt(inCompanys[keyValue]);
         }
         doc.save();
         Company.find({ companyName: { $in: outCompanyNames } }, function (err, doc) {
           if (err) return res.send({ success: false, data: err });
           doc.forEach(item => {
             let outCompany = outCompanys[item.companyName];
-            for (key in outCompany) {
-              item[key] = item[key] - outCompany[key];
+            for (keyValue in outCompany) {
+              item[keyValue] = item[keyValue] - outCompany[keyValue];
             }
             item.save();
           });
@@ -151,7 +172,7 @@ router.delete('/:quantityId',function(req,res,next){
       inCompanyMap[infactProp] = inCompanyMap[infactProp]||0 - 1;
       let applyProp = getQuantityApplyProp(quantityType);
       inCompanyMap[applyProp] = inCompanyMap[applyProp]||0 + 1;
-    }); 
+    });
     Employee.find({_id:{$in:employeeIds}},function(err,employees){
       if(err) return res.send({success:false,data:err});
       Company.find({companyName:{$in:outCompanyNames}},function(err,companys){
@@ -173,19 +194,19 @@ router.delete('/:quantityId',function(req,res,next){
           });
         }
         Employee.remove({_id:{$in:removeEmployeeIds}}).exec();
-        
+
         if(companys.length > 0){
           companys.forEach(c=>{
-            Object.keys(outCompanyMap[c.companyName]).forEach(k=>{
+            Object.keyValues(outCompanyMap[c.companyName]).forEach(k=>{
               c[k] = c[k] + outCompanyMap[c.companyName][k];
             });
             c.save();
           });
         }
-        
+
         Company.findOne({companyName:quantity[0].inCompanyName},function(err,doc){
-          Object.keys(inCompanyMap).forEach(key=>{
-            doc[key] = doc[key] + inCompanyMap[key];
+          Object.keyValues(inCompanyMap).forEach(keyValue=>{
+            doc[keyValue] = doc[keyValue] + inCompanyMap[keyValue];
             doc.save();
           })
         })

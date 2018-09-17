@@ -1,10 +1,8 @@
 import request from '../utils/request';
 import {message} from 'antd';
 import {routerRedux} from 'dva/router';
-export default {
-  namespace : 'quantity',
-  state : {
-    quantitys: [],
+let defaultState = {
+  quantitys: [],
     companys: [],
     currQuantityId: '',
     currInCompanyId: '',
@@ -15,7 +13,7 @@ export default {
       success: true,
       message: ''
     },
-    currQuantity: [ 
+    currQuantity: [
       {
         key: 0,
         outCompany: '',
@@ -26,8 +24,12 @@ export default {
         quantityType: '',
         employees: []
       }
-    ]
-  },
+    ],
+    searchKey:'quantityId',
+}
+export default {
+  namespace : 'quantity',
+  state : {...defaultState},
 
   subscriptions : {
     setup({dispatch, history}) {
@@ -110,7 +112,7 @@ export default {
       const res = yield call(request, `/api/quantity`, {method: 'GET'});
       if (res && res.success && res.data.length > 0) {
         //set data.rowSpan
-        let data = res.data; 
+        let data = res.data;
         let temRow = 0;
         if (data.length == 1) {
           data[0].rowSpan = 1;
@@ -191,29 +193,18 @@ export default {
           payload: res.data || []
         })
       }
+    },
+
+    * searchQuantity({payload:{key,value}},{put,call}){
+      const res = yield call(request,`/api/quantity/?key=${key}&&value=${value}`);
+
     }
   },
 
   reducers : {
     initState(state, action) {
       return {
-        quantitys: [],
-        companys: [],
-        currQuantityId: '',
-        currInCompanyId: '',
-        currInCompanyName: '',
-        currQuantity: [
-          {
-            key: 0,
-            outCompany: '',
-            employeeId: '',
-            employeeName:'',
-            isNewEmployee: true,
-            IDCard: '',
-            quantityType: '',
-            employees: []
-          }
-        ]
+        ...defaultState
       }
     },
 
@@ -270,6 +261,13 @@ export default {
       return {
         ...state,
         currInCompanyUses
+      }
+    },
+
+    setSearchKey(state,{payload:searchKey}){
+      return {
+        ...state,
+        searchKey
       }
     }
   }

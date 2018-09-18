@@ -272,7 +272,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
         key:searchKey,
         value:value
       }
-    })
+    });
   }
 
   const onSelectSearchKey = (value)=>{
@@ -292,7 +292,7 @@ const QuantityList = ({ form, match, routerData, dispatch, quantity,loading }) =
           <Option key="quantityId">列编卡号</Option>
           <Option key="name">姓名</Option>
           <Option key="IDCard">身份证号</Option>
-          <Option key="quantityType">编制类型</Option>
+          <Option key="quantityName">编制类型</Option>
           <Option key="inCompany">调入单位</Option>
           <Option key="outCompany">调出单位</Option>
         </Select>

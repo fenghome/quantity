@@ -10,13 +10,14 @@ const { getQuantityName, getQuantityInfactProp, getInfactPropFormApply, getQuant
 router.get('/', function (req, res,next) {
   const keyValue = req.query.key;
   const value = req.query.value;
-  if(keyValue == "name"){
+  if(keyValue == "name" || keyValue == "IDCard"){
+    let filter = {};
+    filter[keyValue] = new RegExp(value);
     let employeeIds = [];
-    Employee.find({name:value},function(err,doc){
+    Employee.find(filter,function(err,doc){
       doc && doc.forEach(item=>{
         employeeIds.push(item._id);
       });
-      console.log('aaa',employeeIds);
       Quantity.find({employee:{$in:employeeIds}})
         .populate({ path:'employee',select:{name:1,IDCard:1}})
         .exec(function(err,doc){
@@ -26,7 +27,7 @@ router.get('/', function (req, res,next) {
   }else{
     let filter = {};
     if(keyValue && value){
-      filter[keyValue] = value;
+      filter[keyValue] = new RegExp(value);
     }
     Quantity.find(filter)
     .populate({ path: 'employee', select: { name: 1, IDCard: 1 } })

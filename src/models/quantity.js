@@ -26,6 +26,7 @@ let defaultState = {
       }
     ],
     searchKey:'quantityId',
+    filterQuantity:[],
 }
 export default {
   namespace : 'quantity',
@@ -197,7 +198,13 @@ export default {
 
     * searchQuantity({payload:{key,value}},{put,call}){
       const res = yield call(request,`/api/quantity/?key=${key}&&value=${value}`);
-
+      if(res && res.success){
+        yield put({
+          type:'setFilterQuantity',
+          payload:res.data || []
+        })
+      }
+      yield put(routerRedux.push('/quantity/search'));
     }
   },
 
@@ -268,6 +275,13 @@ export default {
       return {
         ...state,
         searchKey
+      }
+    },
+
+    setFilterQuantity(state,{payload:filterQuantity}){
+      return {
+        ...state,
+        filterQuantity
       }
     }
   }
